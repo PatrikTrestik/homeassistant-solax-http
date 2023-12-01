@@ -1,0 +1,13 @@
+{
+  "codeowners": [
+    "@PatrikTrestik"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/PatrikTrestik/",
+  "domain": "solax_http",
+  "iot_class": "local_polling",
+  "name": "SolaX Inverter Local API",
+  "requirements": [],
+  "version": "1.1.0"
+}

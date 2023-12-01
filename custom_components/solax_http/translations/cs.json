@@ -1,0 +1,44 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Define your SolaX local API connection",
+        "data": {
+          "name": "The prefix to be used for sensors",
+          "host": "The IP-address of your SolaX in LAN",
+          "serial_number": "HTTP API password (SN)",
+          "scan_interval": "The polling frequency of the Http API in seconds"
+        }
+      }
+    },
+    "error": {
+      "already_configured": "Device is already configured",
+      "name_already_used": "Name was already used or was invalid",
+      "invalid_host": "Invalid host IP address"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Define your SolaX local API connection",
+        "data": {
+          "name": "The prefix to be used for sensors",
+          "host": "The IP-address of your SolaX in LAN",
+          "serial_number": "HTTP API password (SN)",
+          "scan_interval": "The polling frequency of the Http API in seconds"
+        }
+      }
+    },
+    "error": {
+      "already_configured": "Device is already configured",
+      "name_already_used": "Name was already used or was invalid",
+      "invalid_host": "Invalid host IP address"
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}
