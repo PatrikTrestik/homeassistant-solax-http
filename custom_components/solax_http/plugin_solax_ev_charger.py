@@ -6,7 +6,7 @@ from homeassistant.components.number.const import NumberDeviceClass
 from homeassistant.components.select import SelectEntityDescription
 from homeassistant.components.button import ButtonEntityDescription
 from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
-from homeassistant.const import EntityCategory, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature
+from homeassistant.const import EntityCategory, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime
 from .const import BaseHttpButtonEntityDescription, BaseHttpNumberEntityDescription, BaseHttpSelectEntityDescription, BaseHttpSensorEntityDescription
 
 
@@ -506,6 +506,15 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
         state_class = SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default = False,
     ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Time",
+        key = "charge_time",
+        register = 0x2B,
+        native_unit_of_measurement = UnitOfTime.SECONDS,
+        device_class = SensorDeviceClass.DURATION,
+        state_class = SensorStateClass.TOTAL,
+        entity_registry_enabled_default = True,
+    ),
     # SolaXEVChargerHttpSensorEntityDescription(
     #     name = "Charge Frequency",
     #     key = "charge_frequency",
@@ -784,6 +793,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value=Data.get(24)
             case 0x1D:
                 return_value=Data.get(0)
+            case 0x2B:
+                return_value=Data.get(81,0)*65536+Data.get(80,0)+1
             case _:
                 return_value=None
 
