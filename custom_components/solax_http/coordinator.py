@@ -138,6 +138,9 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
         except aiohttp.ServerDisconnectedError:
             if retry:
                 return await self._http_post(url, payload, retry-1)
+        except aiohttp.client_exceptions.ClientOSError:
+            if retry>0:
+                return await self._http_post(url, payload, retry-1)
         except Exception as ex:
             _LOGGER.exception(f"Error reading from Http. Url: {url}", exc_info=ex)
         return None
