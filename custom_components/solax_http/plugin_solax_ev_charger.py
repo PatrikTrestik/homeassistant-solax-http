@@ -697,6 +697,13 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
                  10: "RFID Activation", },
         icon = "mdi:run",
     ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Firmware Version",
+        key = "firmwareversion",
+        register = 0x25,
+        entity_category = EntityCategory.DIAGNOSTIC,
+        icon = "mdi:information",
+    ),
 ]
 
 # ============================ plugin declaration =================================================
@@ -793,6 +800,9 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value=Data.get(24)
             case 0x1D:
                 return_value=Data.get(0)
+            case 0x25:
+                ver=str(Set.get(19,"000"))
+                return_value=f'{ver[0]}.{ver[1:]}'
             case 0x2B:
                 return_value=Data.get(81,0)*65536+Data.get(80,0)+1
             case _:

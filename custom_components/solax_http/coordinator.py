@@ -76,7 +76,7 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
             if realtimeData is None:
                 realtimeData = {'Data':[], 'Information':[]}
         except Exception as ex:
-            _LOGGER.exception("Something went wrong reading from modbus")
+            _LOGGER.exception("Something went wrong reading from Http API")
 
         data = {
             'Set':{i:v for i,v in enumerate(setData)},
