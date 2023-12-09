@@ -737,6 +737,7 @@ class solax_ev_charger_plugin(plugin_base):
         Data=data['Data']
         Info=data['Info']
 
+        return_value=None
         match descr.register:
             case 0x600:
                 return_value=Info.get(2)
@@ -781,7 +782,10 @@ class solax_ev_charger_plugin(plugin_base):
             case 0xF:
                 return_value=Data.get(12)
             case 0x10:
-                return_value=Data.get(15,0)*65536+Data.get(14,0)
+                datH=Data.get(15)
+                datL=Data.get(14)
+                if datH is not None and datL is not None:
+                    return_value=datH*65536+datL
             case 0x12:
                 return_value=Data.get(16)
             case 0x13:
@@ -801,10 +805,14 @@ class solax_ev_charger_plugin(plugin_base):
             case 0x1D:
                 return_value=Data.get(0)
             case 0x25:
-                ver=str(Set.get(19,"000"))
-                return_value=f'{ver[0]}.{ver[1:]}'
+                ver=str(Set.get(19))
+                if ver is not None:
+                    return_value=f'{ver[0]}.{ver[1:]}'
             case 0x2B:
-                return_value=Data.get(81,0)*65536+Data.get(80,0)+1
+                datH=Data.get(81)
+                datL=Data.get(80)
+                if datH is not None and datL is not None:
+                    return_value=datH*65536+datL+1
             case _:
                 return_value=None
 
@@ -812,10 +820,10 @@ class solax_ev_charger_plugin(plugin_base):
             return None
         if descr.unit == S16 and return_value >= 32768:
             return_value=return_value - 65536
-        if type(descr.scale) is dict: # translate int to string
+        if isinstance(descr.scale, dict): # translate int to string
             return_value = descr.scale.get(return_value, "Unknown")
         elif callable(descr.scale):  # function to call ?
-            return_value = descr.scale(return_value, descr, self.data)
+            return_value = descr.scale(return_value, descr)
         else: # apply simple numeric scaling and rounding if not a list of words
             try:
                 return_value = round(return_value*descr.scale, descr.rounding)
