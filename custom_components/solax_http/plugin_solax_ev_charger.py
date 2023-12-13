@@ -23,30 +23,14 @@ means:  any inverter of tyoe (GEN3 or GEN4) and (X1 or X3) and (EPS)
 An entity can be declared multiple times (with different bitmasks) if the parameters are different for each inverter type
 """
 
-GEN            = 0x0001 # base generation for MIC, PV, AC
-GEN2           = 0x0002
-GEN3           = 0x0004
-GEN4           = 0x0008
-ALL_GEN_GROUP  = GEN2 | GEN3 | GEN4 | GEN
+POW7           = 0x0001
+POW11          = 0x0002
+POW22          = 0x0004
+ALL_POW_GROUP  = POW7 | POW11 | POW22
 
 X1             = 0x0100
 X3             = 0x0200
 ALL_X_GROUP    = X1 | X3
-
-PV             = 0x0400 # Needs further work on PV Only Inverters
-AC             = 0x0800
-HYBRID         = 0x1000
-MIC            = 0x2000
-ALL_TYPE_GROUP = PV | AC | HYBRID | MIC
-
-EPS            = 0x8000
-ALL_EPS_GROUP  = EPS
-
-DCB            = 0x10000 # dry contact box - gen4
-ALL_DCB_GROUP  = DCB
-
-PM  = 0x20000
-ALL_PM_GROUP = PM
 
 ALLDEFAULT = 0 # should be equivalent to HYBRID | AC | GEN2 | GEN3 | GEN4 | X1 | X3
 
@@ -117,9 +101,23 @@ NUMBER_TYPES = [
         register = 0x628,
         fmt = "f",
         native_min_value = 6,
+        native_max_value = 16,
+        native_step = 1,
+        scale = 1,
+        allowedtypes = POW11,
+        native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
+        device_class = NumberDeviceClass.CURRENT,
+    ),
+    SolaXEVChargerHttpNumberEntityDescription(
+        name = "Charge Current",
+        key = "charge_current",
+        register = 0x628,
+        fmt = "f",
+        native_min_value = 6,
         native_max_value = 32,
         native_step = 1,
         scale = 1,
+        allowedtypes = POW7 | POW22,
         native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
         device_class = NumberDeviceClass.CURRENT,
     ),
@@ -341,7 +339,6 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
         rounding = 0,
         native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
         device_class = SensorDeviceClass.CURRENT,
-        allowedtypes = HYBRID,
         entity_registry_enabled_default = False,
     ),
     # SolaXEVChargerHttpSensorEntityDescription(
@@ -847,9 +844,9 @@ class solax_ev_charger_plugin(plugin_base):
         _LOGGER.info(f"Trying to determine inverter type")
 
         # derive invertertupe from seriiesnumber
-        if   self._serialnumber.startswith('C1070'):  invertertype = X1 # 7kW EV Single Phase?
-        elif self._serialnumber.startswith('C3110'):  invertertype = X3 # 11kW EV Three Phase
-        elif self._serialnumber.startswith('C3220'):  invertertype = X3 # 22kW EV Three Phase
+        if   self._serialnumber.startswith('C1070'):  invertertype = X1 | POW7 # 7kW EV Single Phase
+        elif self._serialnumber.startswith('C3110'):  invertertype = X3 | POW11 # 11kW EV Three Phase
+        elif self._serialnumber.startswith('C3220'):  invertertype = X3 | POW22 # 22kW EV Three Phase
         # add cases here
         else:
             invertertype = 0
@@ -860,17 +857,13 @@ class solax_ev_charger_plugin(plugin_base):
         if self.invertertype is None or self.invertertype==0:
             return False
         # returns true if the entity needs to be created for an inverter
-        genmatch = ((self.invertertype & entitymask & ALL_GEN_GROUP)  != 0) or (entitymask & ALL_GEN_GROUP  == 0)
+        powmatch = ((self.invertertype & entitymask & ALL_POW_GROUP)  != 0) or (entitymask & ALL_POW_GROUP  == 0)
         xmatch   = ((self.invertertype & entitymask & ALL_X_GROUP)    != 0) or (entitymask & ALL_X_GROUP    == 0)
-        hybmatch = ((self.invertertype & entitymask & ALL_TYPE_GROUP) != 0) or (entitymask & ALL_TYPE_GROUP == 0)
-        epsmatch = ((self.invertertype & entitymask & ALL_EPS_GROUP)  != 0) or (entitymask & ALL_EPS_GROUP  == 0)
-        dcbmatch = ((self.invertertype & entitymask & ALL_DCB_GROUP)  != 0) or (entitymask & ALL_DCB_GROUP  == 0)
-        pmmatch = ((self.invertertype & entitymask & ALL_PM_GROUP)  != 0) or (entitymask & ALL_PM_GROUP  == 0)
         blacklisted = False
         if blacklist:
             for start in blacklist:
                 if self._serialnumber.startswith(start) : blacklisted = True
-        return (genmatch and xmatch and hybmatch and epsmatch and dcbmatch and pmmatch) and not blacklisted
+        return (powmatch and xmatch) and not blacklisted
 
 def get_plugin_instance():
     return solax_ev_charger_plugin(
