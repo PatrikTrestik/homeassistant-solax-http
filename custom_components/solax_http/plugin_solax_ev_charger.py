@@ -111,18 +111,18 @@ NUMBER_TYPES = [
     #     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
     #     device_class = NumberDeviceClass.CURRENT,
     # ),
-    # SolaXEVChargerHttpNumberEntityDescription(
-    #     name = "Charge Current",
-    #     key = "charge_current",
-    #     register = 0x628,
-    #     fmt = "f",
-    #     native_min_value = 6,
-    #     native_max_value = 32,
-    #     native_step = 0.1,
-    #     scale = 0.01,
-    #     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
-    #     device_class = NumberDeviceClass.CURRENT,
-    # ),
+    SolaXEVChargerHttpNumberEntityDescription(
+        name = "Charge Current",
+        key = "charge_current",
+        register = 0x628,
+        fmt = "f",
+        native_min_value = 6,
+        native_max_value = 32,
+        native_step = 1,
+        scale = 1,
+        native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
+        device_class = NumberDeviceClass.CURRENT,
+    ),
 ]
 
 # ================================= Select Declarations ============================================================
@@ -213,7 +213,7 @@ SELECT_TYPES = [
     # SolaXEVChargerHttpSelectEntityDescription(
     #     name = "Control Command",
     #     key = "control_command",
-    #     register = 0x628,
+    #     register = 0x627,
     #     option_dict =  {
     #         1: "Available",
     #         2: "Unavailable",
@@ -333,21 +333,21 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
     #     entity_registry_enabled_default = False,
     #     icon = "mdi:dip-switch",
     # ),
-    # SolaXEVChargerHttpSensorEntityDescription(
-    #     name = "Charge Current",
-    #     key = "charge_current",
-    #     register = 0x628,
-    #     scale = 0.01,
-    #     rounding = 1,
-    #     native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
-    #     device_class = SensorDeviceClass.CURRENT,
-    #     allowedtypes = HYBRID,
-    #     entity_registry_enabled_default = False,
-    # ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Current",
+        key = "charge_current",
+        register = 0x628,
+        scale = 1,
+        rounding = 0,
+        native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
+        device_class = SensorDeviceClass.CURRENT,
+        allowedtypes = HYBRID,
+        entity_registry_enabled_default = False,
+    ),
     # SolaXEVChargerHttpSensorEntityDescription(
     #     name = "Control Command",
     #     key = "control_command",
-    #     register = 0x628,
+    #     register = 0x627,
     #     scale = {
     #         1: "Available",
     #         2: "Unavailable",
@@ -729,6 +729,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg":11,"val":f"{payload}"}]
             case 0x625:
                 return [{"reg":70,"val":f"{payload}"}]
+            case 0x628:
+                return [{"reg":82,"val":f"{payload}"}]
             case _:
                 return None
 
@@ -746,7 +748,7 @@ class solax_ev_charger_plugin(plugin_base):
             case 0x60D:
                 return_value=Set.get(1)
             case 0x610:
-                return_value=Set.get(29)
+                return_value=Set.get(4)
             case 0x613:
                 return_value=Set.get(11)
             # case 0x615:
@@ -757,8 +759,8 @@ class solax_ev_charger_plugin(plugin_base):
             #     return_value=[Data[38]H, Data[38]L, Data[37]H, Data[37]L, Data[36]H, Data[36]L]
             case 0x625:
                 return_value=Data.get(65)
-            # case 0x628:
-            #     return_value=Data[]
+            case 0x628:
+                return_value=Set.get(76)
             case 0x0:
                 return_value=Data.get(2)
             case 0x1:

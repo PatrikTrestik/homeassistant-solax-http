@@ -12,7 +12,8 @@ from .const import (
 )
 
 PLATFORMS = [
-    # "button", "number",
+    # "button",
+    "number",
     "select",
     "sensor"]
 
