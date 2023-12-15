@@ -1,3 +1,4 @@
+import datetime
 import logging
 from dataclasses import dataclass
 from .const import S16, U16, U32, plugin_base
@@ -231,6 +232,14 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
     # Holding
     #
     ###
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge start time",
+        key = "charge_start_time",
+        register = 0xF001,
+        device_class = SensorDeviceClass.TIMESTAMP,
+        entity_registry_enabled_default = True,
+        icon = "mdi:clock",
+    ),
     SolaXEVChargerHttpSensorEntityDescription(
         name = "CT Meter Setting",
         key = "ct_meter_setting",
@@ -512,43 +521,42 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
         state_class = SensorStateClass.TOTAL,
         entity_registry_enabled_default = True,
     ),
-    # SolaXEVChargerHttpSensorEntityDescription(
-    #     name = "Charge Frequency",
-    #     key = "charge_frequency",
-    #     register = 0xC,
-    #     scale = 0.01,
-    #     native_unit_of_measurement = UnitOfFrequency.HERTZ,
-    #     allowedtypes = X1,
-    #     entity_registry_enabled_default = False,
-    # ),
-    # SolaXEVChargerHttpSensorEntityDescription(
-    #     name = "Charge Frequency L1",
-    #     key = "charge_frequency_l1",
-    #     register = 0xC,
-    #     scale = 0.01,
-    #     native_unit_of_measurement = UnitOfFrequency.HERTZ,
-    #     allowedtypes = X3,
-    #     entity_registry_enabled_default = False,
-    # ),
-    # SolaXEVChargerHttpSensorEntityDescription(
-    #     name = "Charge Frequency L2",
-    #     key = "charge_frequency_l2",
-    #     register = 0xD,
-    #     scale = 0.01,
-    #     native_unit_of_measurement = UnitOfFrequency.HERTZ,
-    #     allowedtypes = X3,
-    #     entity_registry_enabled_default = False,
-    # ),
-    # SolaXEVChargerHttpSensorEntityDescription(
-    #     name = "Charge Frequency L3",
-    #     key = "charge_frequency_l3",
-    #     register = 0xE,
-    #     register_type = REG_INPUT,
-    #     scale = 0.01,
-    #     native_unit_of_measurement = UnitOfFrequency.HERTZ,
-    #     allowedtypes = X3,
-    #     entity_registry_enabled_default = False,
-    # ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Frequency",
+        key = "charge_frequency",
+        register = 0xC,
+        scale = 0.01,
+        native_unit_of_measurement = UnitOfFrequency.HERTZ,
+        allowedtypes = X1,
+        entity_registry_enabled_default = False,
+    ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Frequency L1",
+        key = "charge_frequency_l1",
+        register = 0xC,
+        scale = 0.01,
+        native_unit_of_measurement = UnitOfFrequency.HERTZ,
+        allowedtypes = X3,
+        entity_registry_enabled_default = False,
+    ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Frequency L2",
+        key = "charge_frequency_l2",
+        register = 0xD,
+        scale = 0.01,
+        native_unit_of_measurement = UnitOfFrequency.HERTZ,
+        allowedtypes = X3,
+        entity_registry_enabled_default = False,
+    ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name = "Charge Frequency L3",
+        key = "charge_frequency_l3",
+        register = 0xE,
+        scale = 0.01,
+        native_unit_of_measurement = UnitOfFrequency.HERTZ,
+        allowedtypes = X3,
+        entity_registry_enabled_default = False,
+    ),
     SolaXEVChargerHttpSensorEntityDescription(
         name = "Charge Added",
         key = "charge_added",
@@ -738,6 +746,15 @@ class solax_ev_charger_plugin(plugin_base):
 
         return_value=None
         match descr.register:
+            case 0xF001:
+                #Y-M-D H:m:S
+                year=Data.get(84) >> 8
+                month=Data.get(84) & 0x00FF
+                day=Data.get(83) >> 8
+                hour=Data.get(83) & 0x00FF
+                minute=Data.get(82) >> 8
+                second=Data.get(82) & 0x00FF
+                return_value=datetime.datetime(2000+year,month,day,hour,minute,second).astimezone()
             case 0x600:
                 return_value=Info.get(2)
             case 0x60C:
@@ -778,6 +795,12 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value=Data.get(10)
             case 0xB:
                 return_value=Data.get(11)
+            case 0xC:
+                return_value=Data.get(33)
+            case 0xD:
+                return_value=Data.get(34)
+            case 0xE:
+                return_value=Data.get(35)
             case 0xF:
                 return_value=Data.get(12)
             case 0x10:
