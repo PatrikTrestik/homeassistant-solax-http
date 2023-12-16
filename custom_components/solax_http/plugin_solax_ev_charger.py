@@ -781,7 +781,11 @@ class solax_ev_charger_plugin(plugin_base):
                 hour=Data.get(83) & 0x00FF
                 minute=Data.get(82) >> 8
                 second=Data.get(82) & 0x00FF
-                return_value=datetime.datetime(2000+year,month,day,hour,minute,second).astimezone()
+                try:
+                    return_value=datetime.datetime(2000+year,month,day,hour,minute,second).astimezone()
+                except:
+                    _LOGGER.warning(f'invalid date data 84{Data.get(84)},83{Data.get(83)},82{Data.get(82)}')
+
             case 0x600:
                 return_value=Info.get(2)
             case 0x60C:
