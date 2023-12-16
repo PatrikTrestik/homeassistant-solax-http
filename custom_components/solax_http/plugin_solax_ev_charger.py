@@ -102,7 +102,7 @@ NUMBER_TYPES = [
         register = 0x628,
         fmt = "f",
         native_min_value = 6,
-        native_max_value = 16,
+        native_max_value = 32,
         native_step = 1,
         scale = 1,
         allowedtypes = POW11,
@@ -159,6 +159,29 @@ SELECT_TYPES = [
             1: "Fast",
             2: "ECO",
             3: "Green", },
+        icon = "mdi:dip-switch",
+    ),
+    SolaXEVChargerHttpSelectEntityDescription(
+        name = "Charger Green Mode Level",
+        key = "charger_green_mode",
+        register = 0x60F,
+        scale = {
+            3: "3A",
+            6: "6A",
+            },
+        icon = "mdi:dip-switch",
+    ),
+    SolaXEVChargerHttpSelectEntityDescription(
+        name = "Charger Eco Mode Level",
+        key = "charger_eco_mode",
+        register = 0x60E,
+        scale = {
+            6: "6A",
+            10: "10A",
+            16: "16A",
+            20: "20A",
+            25: "25A",
+            },
         icon = "mdi:dip-switch",
     ),
     SolaXEVChargerHttpSelectEntityDescription(
@@ -728,6 +751,10 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg":2,"val":f"{payload}"}]
             case 0x60C:
                 return [{"reg":1,"val":f"{payload}"}]
+            case 0x60E:
+                return [{"reg":3,"val":f"{payload}"}]
+            case 0x60F:
+                return [{"reg":4,"val":f"{payload}"}]
             case 0x610:
                 return [{"reg":5,"val":f"{payload}"}]
             case 0x613:
@@ -761,6 +788,10 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value=Set.get(0)
             case 0x60D:
                 return_value=Set.get(1)
+            case 0x60E:
+                return_value=Set.get(2)
+            case 0x60F:
+                return_value=Set.get(3)
             case 0x610:
                 return_value=Set.get(4)
             case 0x613:
