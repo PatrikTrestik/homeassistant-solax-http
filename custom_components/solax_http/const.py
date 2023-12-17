@@ -1,5 +1,7 @@
 from homeassistant.components.button import ButtonEntityDescription
+from homeassistant.components.switch import SwitchEntityDescription
 from homeassistant.components.select import SelectEntityDescription
+from homeassistant.components.time import TimeEntityDescription
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntityDescription,
@@ -33,6 +35,7 @@ S32 = "_int32"
 @dataclass
 class plugin_base:
     plugin_name: str
+    TIME_TYPES: list[TimeEntityDescription]
     SENSOR_TYPES: list[SensorEntityDescription]
     BUTTON_TYPES: list[ButtonEntityDescription]
     NUMBER_TYPES: list[NumberEntityDescription]
@@ -75,6 +78,12 @@ class BaseHttpButtonEntityDescription(ButtonEntityDescription):
     value_function: callable = None #  value = function(initval, descr, datadict)
 
 @dataclass
+class BaseHttpSwitchEntityDescription(SwitchEntityDescription):
+    allowedtypes: int = 0 # overload with ALLDEFAULT from plugin
+    register: int = None
+    blacklist: list = None # none or list of serial number prefixes
+
+@dataclass
 class BaseHttpSelectEntityDescription(SelectEntityDescription):
     allowedtypes: int = 0 # overload with ALLDEFAULT from plugin
     register: int = None
@@ -101,4 +110,11 @@ class BaseHttpNumberEntityDescription(NumberEntityDescription):
     blacklist: list = None # None or list of serial number prefixes like
     initvalue: int = None # initial default value for WRITE_DATA_LOCAL entities
     prevent_update: bool = False # if set to True, value will not be re-read/updated with each polling cycle; only when read value changes
+
+@dataclass
+class BaseHttpTimeEntityDescription(TimeEntityDescription):
+    allowedtypes: int = 0 # overload with ALLDEFAULT from plugin
+    register: int = None
+    blacklist: list = None # None or list of serial number prefixes like
+
 

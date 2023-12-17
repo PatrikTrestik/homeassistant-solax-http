@@ -1,14 +1,12 @@
+from ctypes import cast
 import datetime
 import logging
 from dataclasses import dataclass
-from .const import S16, U16, U32, plugin_base
-from homeassistant.components.number import NumberEntityDescription
+from .const import S16, U16, U32, BaseHttpSwitchEntityDescription, plugin_base
 from homeassistant.components.number.const import NumberDeviceClass
-from homeassistant.components.select import SelectEntityDescription
-from homeassistant.components.button import ButtonEntityDescription
 from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
 from homeassistant.const import EntityCategory, UnitOfElectricCurrent, UnitOfElectricPotential, UnitOfEnergy, UnitOfFrequency, UnitOfPower, UnitOfTemperature, UnitOfTime
-from .const import BaseHttpButtonEntityDescription, BaseHttpNumberEntityDescription, BaseHttpSelectEntityDescription, BaseHttpSensorEntityDescription
+from .const import BaseHttpButtonEntityDescription, BaseHttpNumberEntityDescription, BaseHttpSelectEntityDescription, BaseHttpSensorEntityDescription, BaseHttpTimeEntityDescription
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,7 +43,15 @@ class SolaXEVChargerHttpButtonEntityDescription(BaseHttpButtonEntityDescription)
     allowedtypes: int = ALLDEFAULT # maybe 0x0000 (nothing) is a better default choice
 
 @dataclass
+class SolaXEVChargerHttpSwitchEntityDescription(BaseHttpSwitchEntityDescription):
+    allowedtypes: int = ALLDEFAULT # maybe 0x0000 (nothing) is a better default choice
+
+@dataclass
 class SolaXEVChargerHttpNumberEntityDescription(BaseHttpNumberEntityDescription):
+    allowedtypes: int = ALLDEFAULT # maybe 0x0000 (nothing) is a better default choice
+
+@dataclass
+class SolaXEVChargerHttpTimeEntityDescription(BaseHttpNumberEntityDescription):
     allowedtypes: int = ALLDEFAULT # maybe 0x0000 (nothing) is a better default choice
 
 @dataclass
@@ -68,6 +74,42 @@ BUTTON_TYPES = [
     #     icon = "mdi:home-clock",
     #     value_function = value_function_sync_rtc,
     # ),
+]
+
+# ================================= Switch Declarations ============================================================
+
+SWITCH_TYPES = [
+    # SolaXEVChargerHttpSwitchEntityDescription(
+    #     name = "Boost set",
+    #     key = "boost_set",
+    #     register = 0x61E,
+    #     icon = "mdi:home-clock",
+    #     value_function = value_function_sync_rtc,
+    # ),
+]
+# ================================= Time Declarations ============================================================
+
+TIME_TYPES = [
+    ###
+    #
+    #  Normal time types
+    #
+    ###
+    SolaXEVChargerHttpTimeEntityDescription(
+        name = "Timed boost start",
+        key = "timed_boost_start",
+        register = 0x634,
+    ),
+    SolaXEVChargerHttpTimeEntityDescription(
+        name = "Timed boost end",
+        key = "timed_boost_end",
+        register = 0x636,
+    ),
+    SolaXEVChargerHttpTimeEntityDescription(
+        name = "Smart boost end",
+        key = "smart_boost_end",
+        register = 0x638,
+    ),
 ]
 
 # ================================= Number Declarations ============================================================
@@ -122,17 +164,23 @@ NUMBER_TYPES = [
         native_unit_of_measurement = UnitOfElectricCurrent.AMPERE,
         device_class = NumberDeviceClass.CURRENT,
     ),
+    SolaXEVChargerHttpNumberEntityDescription(
+        name = "Smart boost energy",
+        key = "smart_boost_energy",
+        register = 0x63A,
+        fmt = "f",
+        native_min_value = 0,
+        native_max_value = 100,
+        native_step = 1,
+        scale = 1,
+        native_unit_of_measurement = UnitOfEnergy.KILO_WATT_HOUR,
+        device_class = NumberDeviceClass.ENERGY,
+    ),
 ]
 
 # ================================= Select Declarations ============================================================
 
 SELECT_TYPES = [
-    ###
-    #
-    #  Data only select types
-    #
-    ###
-
     ###
     #
     #  Normal select types
@@ -689,14 +737,14 @@ SENSOR_TYPES_MAIN: list[SolaXEVChargerHttpSensorEntityDescription] = [
         entity_registry_enabled_default = False,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
-        name = "Grid Power Total",
-        key = "grid_power_total",
+        name = "Available PV Power",
+        key = "available_pv_power",
         register = 0x18,
         unit = S16,
         native_unit_of_measurement = UnitOfPower.WATT,
         device_class = SensorDeviceClass.POWER,
         state_class = SensorStateClass.MEASUREMENT,
-        entity_registry_enabled_default = False,
+        entity_registry_enabled_default = True,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
         name = "Charger Temperature",
@@ -763,6 +811,32 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg":70,"val":f"{payload}"}]
             case 0x628:
                 return [{"reg":82,"val":f"{payload}"}]
+            case 0x634:
+                if isinstance(payload, datetime.time):
+                    time_val:datetime.time=payload
+                    hour=time_val.hour
+                    minute=time_val.minute
+                    hm_payload=(hour << 8) + minute
+                    return [{"reg":12,"val":f"{hm_payload}"}]
+                return None
+            case 0x636:
+                if isinstance(payload, datetime.time):
+                    time_val:datetime.time=payload
+                    hour=time_val.hour
+                    minute=time_val.minute
+                    hm_payload=(hour << 8) + minute
+                    return [{"reg":13,"val":f"{hm_payload}"}]
+                return None
+            case 0x638:
+                if isinstance(payload, datetime.time):
+                    time_val:datetime.time=payload
+                    hour=time_val.hour
+                    minute=time_val.minute
+                    hm_payload=(hour << 8) + minute
+                    return [{"reg":15,"val":f"{hm_payload}"}]
+                return None
+            case 0x63A:
+                return [{"reg":14,"val":f"{payload}"}]
             case _:
                 return None
 
@@ -781,11 +855,8 @@ class solax_ev_charger_plugin(plugin_base):
                 hour=Data.get(83) & 0x00FF
                 minute=Data.get(82) >> 8
                 second=Data.get(82) & 0x00FF
-                try:
+                if month!=0:
                     return_value=datetime.datetime(2000+year,month,day,hour,minute,second).astimezone()
-                except:
-                    _LOGGER.warning(f'invalid date data 84{Data.get(84)},83{Data.get(83)},82{Data.get(82)}')
-
             case 0x600:
                 return_value=Info.get(2)
             case 0x60C:
@@ -810,6 +881,29 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value=Data.get(65)
             case 0x628:
                 return_value=Set.get(76)
+            case 0x634:
+                val=Set.get(12)
+                if val is not None:
+                    hour=val >> 8
+                    minute=val & 0x00FF
+                    if hour>=0 and hour<24 and minute>=0 and minute<60:
+                        return_value=datetime.time(hour, minute)
+            case 0x636:
+                val=Set.get(13)
+                if val is not None:
+                    hour=val >> 8
+                    minute=val & 0x00FF
+                    if hour>=0 and hour<24 and minute>=0 and minute<60:
+                        return_value=datetime.time(hour, minute)
+            case 0x638:
+                val=Set.get(15)
+                if val is not None:
+                    hour=val >> 8
+                    minute=val & 0x00FF
+                    if hour>=0 and hour<24 and minute>=0 and minute<60:
+                        return_value=datetime.time(hour, minute)
+            case 0x63A:
+                return_value=Set.get(14)
             case 0x0:
                 return_value=Data.get(2)
             case 0x1:
@@ -926,6 +1020,7 @@ class solax_ev_charger_plugin(plugin_base):
 def get_plugin_instance():
     return solax_ev_charger_plugin(
         plugin_name = 'solax_ev_charger',
+        TIME_TYPES=TIME_TYPES,
         SENSOR_TYPES = SENSOR_TYPES_MAIN,
         NUMBER_TYPES = NUMBER_TYPES,
         BUTTON_TYPES = BUTTON_TYPES,
