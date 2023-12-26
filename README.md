@@ -1,3 +1,4 @@
+<a href="https://www.buymeacoffee.com/qG6DdXgzah" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 # homeassistant-solax-http
 This is Home Assistant integration for SolaX local API.
 Work is based on https://github.com/wills106/homeassistant-solax-modbus and all credits for initial conception work go there.
