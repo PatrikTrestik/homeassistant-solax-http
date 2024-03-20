@@ -7,8 +7,8 @@
   "documentation": "https://github.com/PatrikTrestik/",
   "domain": "solax_http",
   "iot_class": "local_polling",
-  "name": "SolaX Inverter Local API",
+  "name": "SolaX HTTP API",
   "requirements": [],
   "issue_tracker": "https://github.com/PatrikTrestik/homeassistant-solax-http/issues",
-  "version": "1.2.3"
+  "version": "1.2.4"
 }
