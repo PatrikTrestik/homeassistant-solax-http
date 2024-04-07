@@ -1008,9 +1008,13 @@ class solax_ev_charger_plugin(plugin_base):
         _LOGGER.info(f"Trying to determine inverter type")
 
         # derive invertertupe from seriiesnumber
-        if   self._serialnumber.startswith('C1070'):  invertertype = X1 | POW7 # 7kW EV Single Phase
-        elif self._serialnumber.startswith('C3110'):  invertertype = X3 | POW11 # 11kW EV Three Phase
-        elif self._serialnumber.startswith('C3220'):  invertertype = X3 | POW22 # 22kW EV Three Phase
+        # Adding support for G1.1 (C1071). If required add new flag to distinguish G1.0 (C1070) and G1.1
+        if   self._serialnumber.startswith('C107'):  
+            invertertype = X1 | POW7 # 7kW EV Single Phase
+        elif self._serialnumber.startswith('C3110'):  
+            invertertype = X3 | POW11 # 11kW EV Three Phase
+        elif self._serialnumber.startswith('C3220'):  
+            invertertype = X3 | POW22 # 22kW EV Three Phase
         # add cases here
         else:
             invertertype = 0
