@@ -31,7 +31,11 @@ X1             = 0x0100
 X3             = 0x0200
 ALL_X_GROUP    = X1 | X3
 
-ALLDEFAULT = 0 # should be equivalent to HYBRID | AC | GEN2 | GEN3 | GEN4 | X1 | X3
+V10            = 0x0010
+V11            = 0x0020
+ALL_VER_GROUP = V10 | V11
+
+ALLDEFAULT = 0
 
 # ======================= end of bitmask handling code =============================================
 
@@ -1011,14 +1015,19 @@ class solax_ev_charger_plugin(plugin_base):
         # Adding support for G1.1 (C1071). If required add new flag to distinguish G1.0 (C1070) and G1.1
         if   self._serialnumber.startswith('C107'):  
             invertertype = X1 | POW7 # 7kW EV Single Phase
-        elif self._serialnumber.startswith('C3110'):  
+        elif self._serialnumber.startswith('C311'):  
             invertertype = X3 | POW11 # 11kW EV Three Phase
-        elif self._serialnumber.startswith('C3220'):  
+        elif self._serialnumber.startswith('C322'):  
             invertertype = X3 | POW22 # 22kW EV Three Phase
         # add cases here
         else:
             invertertype = 0
             _LOGGER.error(f"unrecognized inverter type - serial number : {self._serialnumber}")
+
+        if self._serialnumber[4] == "0":
+            invertertype = invertertype | V10
+        elif self._serialnumber[4] == "1":
+            invertertype = invertertype | V11
         return invertertype
 
     def matchWithMask(self, entitymask, blacklist = None):
@@ -1027,11 +1036,13 @@ class solax_ev_charger_plugin(plugin_base):
         # returns true if the entity needs to be created for an inverter
         powmatch = ((self.invertertype & entitymask & ALL_POW_GROUP)  != 0) or (entitymask & ALL_POW_GROUP  == 0)
         xmatch   = ((self.invertertype & entitymask & ALL_X_GROUP)    != 0) or (entitymask & ALL_X_GROUP    == 0)
+        vermatch   = ((self.invertertype & entitymask & ALL_VER_GROUP)    != 0) or (entitymask & ALL_VER_GROUP    == 0)
         blacklisted = False
         if blacklist:
             for start in blacklist:
-                if self._serialnumber.startswith(start) : blacklisted = True
-        return (powmatch and xmatch) and not blacklisted
+                if self._serialnumber.startswith(start): 
+                    blacklisted = True
+        return (powmatch and xmatch and vermatch) and not blacklisted
 
 def get_plugin_instance():
     return solax_ev_charger_plugin(
