@@ -15,3 +15,11 @@ Let me know if you have other device and you are interested in integrating it. P
 # Installation
 This repository is compatible with HACS. You can use this link to install the integration.
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=PatrikTrestik&repository=homeassistant-solax-http&category=integration)
+
+# Available entities
+![image](https://github.com/PatrikTrestik/homeassistant-solax-http/assets/17616747/e7faad55-d647-4736-93a3-8fc22917d20c)
+![image](https://github.com/PatrikTrestik/homeassistant-solax-http/assets/17616747/299655fc-cb52-41d0-97d4-0ff0c9a103af)
+![image](https://github.com/PatrikTrestik/homeassistant-solax-http/assets/17616747/2bad6d88-91ca-4656-aea1-4bf53a12fa38)
+![image](https://github.com/PatrikTrestik/homeassistant-solax-http/assets/17616747/659b9fff-2898-4cb8-a911-38eaa7261fe0)
+
+
