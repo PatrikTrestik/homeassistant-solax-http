@@ -3,6 +3,9 @@
 This is Home Assistant integration for SolaX local API.
 Work is based on https://github.com/wills106/homeassistant-solax-modbus and all credits for initial conception work go there.
 
+There are some Modbus registers which I skipped because I think it is not interesting. If you see something useful in EVC Modbus document what is not here, let me know.
+HTTP API is not 1:1 to Modbus but there is high chance that I can add required sensor.
+
 This has to be taken as only other mean of communication where Modbus is not possible.
 
 Please write only issues specific to Http API here.
