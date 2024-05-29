@@ -71,6 +71,12 @@ class SolaXEVChargerHttpSensorEntityDescription(BaseHttpSensorEntityDescription)
 # ================================= Button Declarations ============================================================
 
 BUTTON_TYPES = [
+    SolaXEVChargerHttpButtonEntityDescription(
+        name = "Reset",
+        key = "reset",
+        register = 0x618,
+        icon = "mdi:reset"
+    )
     # SolaXEVChargerHttpButtonEntityDescription(
     #     name = "Sync RTC",
     #     key = "sync_rtc",
@@ -823,6 +829,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg":5,"val":f"{payload}"}]
             case 0x613:
                 return [{"reg":11,"val":f"{payload}"}]
+            case 0x618:
+                return [{"reg":22,"val":f"{payload}"}]
             case 0x625:
                 return [{"reg":70,"val":f"{payload}"}]
             case 0x628:
@@ -1013,11 +1021,11 @@ class solax_ev_charger_plugin(plugin_base):
 
         # derive invertertupe from seriiesnumber
         # Adding support for G1.1 (C1071). If required add new flag to distinguish G1.0 (C1070) and G1.1
-        if   self._serialnumber.startswith('C107'):  
+        if   self._serialnumber.startswith('C107'):
             invertertype = X1 | POW7 # 7kW EV Single Phase
-        elif self._serialnumber.startswith('C311'):  
+        elif self._serialnumber.startswith('C311'):
             invertertype = X3 | POW11 # 11kW EV Three Phase
-        elif self._serialnumber.startswith('C322'):  
+        elif self._serialnumber.startswith('C322'):
             invertertype = X3 | POW22 # 22kW EV Three Phase
         # add cases here
         else:
@@ -1040,7 +1048,7 @@ class solax_ev_charger_plugin(plugin_base):
         blacklisted = False
         if blacklist:
             for start in blacklist:
-                if self._serialnumber.startswith(start): 
+                if self._serialnumber.startswith(start):
                     blacklisted = True
         return (powmatch and xmatch and vermatch) and not blacklisted
 
