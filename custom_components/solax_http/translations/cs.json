@@ -6,7 +6,7 @@
         "data": {
           "name": "The prefix to be used for sensors",
           "host": "The IP-address of your SolaX in LAN",
-          "serial_number": "HTTP API password (SN)",
+          "serial_number": "EV Charger API password (default is Reg.No.)",
           "scan_interval": "The polling frequency of the Http API in seconds"
         }
       }
@@ -27,7 +27,7 @@
         "data": {
           "name": "The prefix to be used for sensors",
           "host": "The IP-address of your SolaX in LAN",
-          "serial_number": "HTTP API password (SN)",
+          "serial_number": "EV Charger API password (default is Reg.No.)",
           "scan_interval": "The polling frequency of the Http API in seconds"
         }
       }
