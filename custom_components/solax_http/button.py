@@ -1,20 +1,22 @@
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+import logging
+from typing import Optional
+
 from homeassistant.components.button import ButtonEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
-from .const import ATTR_MANUFACTURER, DOMAIN
-from .const import BaseHttpButtonEntityDescription
-from .const import plugin_base
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
+
+from .const import ATTR_MANUFACTURER, DOMAIN, BaseHttpButtonEntityDescription
 from .coordinator import SolaxHttpUpdateCoordinator
-from typing import Any, Dict, Optional
-import logging
+from .plugin_base import plugin_base
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_entry(hass:HomeAssistant, entry, async_add_entities) -> None:
+
+async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> None:
     name = entry.options[CONF_NAME]
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    plugin:plugin_base=coordinator.plugin
+    plugin: plugin_base = coordinator.plugin
 
     device_info = {
         "identifiers": {(DOMAIN, name)},
@@ -24,29 +26,26 @@ async def async_setup_entry(hass:HomeAssistant, entry, async_add_entities) -> No
 
     entities = []
     for button_info in plugin.BUTTON_TYPES:
-        if plugin.matchWithMask(button_info.allowedtypes,button_info.blacklist):
-            button = SolaXHttpButton(
-                coordinator,
-                name,
-                device_info,
-                button_info
-                )
+        if plugin.matchWithMask(button_info.allowedtypes, button_info.blacklist):
+            button = SolaXHttpButton(coordinator, name, device_info, button_info)
 
             entities.append(button)
 
     async_add_entities(entities)
     return True
 
+
 class SolaXHttpButton(CoordinatorEntity, ButtonEntity):
     """Representation of an SolaX Http button."""
+
     coordinator: SolaxHttpUpdateCoordinator
 
     def __init__(
-            self,
-            coordinator:SolaxHttpUpdateCoordinator,
-            platform_name,
-            device_info,
-            description: BaseHttpButtonEntityDescription,
+        self,
+        coordinator: SolaxHttpUpdateCoordinator,
+        platform_name,
+        device_info,
+        description: BaseHttpButtonEntityDescription,
     ) -> None:
         """Initialize the selector."""
         super().__init__(coordinator, context=description)
@@ -78,5 +77,7 @@ class SolaXHttpButton(CoordinatorEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Write the button value."""
-        success=await self.coordinator.write_register(self.entity_description.register, 1)
+        success = await self.coordinator.write_register(
+            self.entity_description.register, 1
+        )
         # await self.coordinator.async_request_refresh()

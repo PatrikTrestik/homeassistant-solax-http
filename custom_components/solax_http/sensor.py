@@ -1,7 +1,7 @@
 import numbers
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .coordinator import SolaxHttpUpdateCoordinator
-from .const import plugin_base
+from .plugin_base import plugin_base
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.components.sensor import SensorEntity
@@ -15,10 +15,11 @@ from .const import BaseHttpSensorEntityDescription
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup_entry(hass:HomeAssistant, entry, async_add_entities):
+
+async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
     name = entry.options[CONF_NAME]
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
-    plugin:plugin_base=coordinator.plugin
+    plugin: plugin_base = coordinator.plugin
 
     device_info = {
         "identifiers": {(DOMAIN, name)},
@@ -29,7 +30,9 @@ async def async_setup_entry(hass:HomeAssistant, entry, async_add_entities):
     entities = []
 
     for sensor_description in plugin.SENSOR_TYPES:
-        if plugin.matchWithMask(sensor_description.allowedtypes, sensor_description.blacklist):
+        if plugin.matchWithMask(
+            sensor_description.allowedtypes, sensor_description.blacklist
+        ):
             newdescr = sensor_description
             sensor = SolaXHttpSensor(
                 coordinator,
@@ -44,7 +47,6 @@ async def async_setup_entry(hass:HomeAssistant, entry, async_add_entities):
     return True
 
 
-
 class SolaXHttpSensor(CoordinatorEntity, SensorEntity):
     """Representation of an SolaX Http sensor."""
 
@@ -54,13 +56,13 @@ class SolaXHttpSensor(CoordinatorEntity, SensorEntity):
         platform_name,
         device_info,
         description: BaseHttpSensorEntityDescription,
-    )->None:
+    ) -> None:
         """Initialize the sensor."""
         super().__init__(coordinator, context=description)
         self._platform_name = platform_name
         self._attr_device_info = device_info
         self.entity_description: BaseHttpSensorEntityDescription = description
-        self._value=None
+        self._value = None
 
     async def async_added_to_hass(self):
         """Register callbacks."""
@@ -89,5 +91,3 @@ class SolaXHttpSensor(CoordinatorEntity, SensorEntity):
     def native_value(self):
         """Return the state of the sensor."""
         return self._value
-
-

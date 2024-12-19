@@ -2,17 +2,15 @@
 
 import logging
 
-from . import plugin_solax_ev_charger
-from .coordinator import SolaxHttpUpdateCoordinator
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_SCAN_INTERVAL
+from homeassistant.core import HomeAssistant
 
-from .const import (
-    DOMAIN,
-)
+from .const import CONF_SN, DOMAIN
+from .coordinator import SolaxHttpUpdateCoordinator
+from .plugin_factory import PluginFactory
 
-PLATFORMS = ["button", "time", "number", "select", "sensor"]
+PLATFORMS = ["button", "number", "select", "sensor", "time"]
 
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,13 +25,13 @@ async def async_setup(hass, config):
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up a SolaX Http."""
-    _LOGGER.debug(f"setup entries - data: {entry.data}, options: {entry.options}")
+    _LOGGER.debug("setup entries - data: %s, options: %s", entry.data, entry.options)
     config = entry.options
     name = config[CONF_NAME]
 
-    _LOGGER.debug(f"Setup {DOMAIN}.{name}")
+    _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
-    plugin = plugin_solax_ev_charger.get_plugin_instance()
+    plugin = await PluginFactory.get_plugin_instance(config[CONF_HOST], config[CONF_SN])
     coordinator = SolaxHttpUpdateCoordinator(hass, entry, plugin)
     await coordinator.async_config_entry_first_refresh()
 
