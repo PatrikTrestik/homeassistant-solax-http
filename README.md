@@ -12,7 +12,8 @@ Please write only issues specific to Http API here.
 All other stuff is common and should be discussed in https://github.com/wills106/homeassistant-solax-modbus
 
 # Supported devices
-Only SolaX EV Charger X3 is supported.
+G1 SolaX EV Charger X3 is supported.
+G2 SolaX Smart EV Charger support is under development and testing.
 Let me know if you have other device and you are interested in integrating it. Physical device is required as there is no documentation available.
 
 # Installation
