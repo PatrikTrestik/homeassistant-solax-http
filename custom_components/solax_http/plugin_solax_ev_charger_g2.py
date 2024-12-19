@@ -90,20 +90,20 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #         return_value = datetime.datetime(
             #             2000 + year, month, day, hour, minute, second
             #         ).astimezone()
-            case 0x600:
-                return_value = Info.get(2)
-            case 0x60C:
-                return_value = Set.get(0)
-            case 0x60D:
-                return_value = Set.get(1)
-            case 0x60E:
-                return_value = Set.get(2)
-            case 0x60F:
-                return_value = Set.get(3)
-            case 0x610:
-                return_value = Set.get(4)
-            case 0x613:
-                return_value = Set.get(11)
+            # case 0x600: #SN
+            #     return_value = Info.get(2)
+            # case 0x60C: #Grid Data Source
+            #     return_value = Set.get(0)
+            # case 0x60D: #Mode
+            #     return_value = Set.get(1)
+            # case 0x60E: #Eco Gear
+            #     return_value = Set.get(2)
+            # case 0x60F: #Green Gear
+            #     return_value = Set.get(3)
+            # case 0x610: #StartChargeMode
+            #     return_value = Set.get(4)
+            # case 0x613: #Smart boost Type
+            #     return_value = Set.get(11)
             # case 0x615:
             #     return_value=Data[]
             # case 0x616:
@@ -112,31 +112,31 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value=[Data[38]H, Data[38]L, Data[37]H, Data[37]L, Data[36]H, Data[36]L]
             # case 0x625:
             #     return_value = Data.get(65)
-            case 0x628:
-                return_value = Set.get(76)
-            case 0x634:
-                val = Set.get(12)
-                if val is not None:
-                    hour = val >> 8
-                    minute = val & 0x00FF
-                    if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
-                        return_value = datetime.time(hour, minute)
-            case 0x636:
-                val = Set.get(13)
-                if val is not None:
-                    hour = val >> 8
-                    minute = val & 0x00FF
-                    if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
-                        return_value = datetime.time(hour, minute)
-            case 0x638:
-                val = Set.get(15)
-                if val is not None:
-                    hour = val >> 8
-                    minute = val & 0x00FF
-                    if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
-                        return_value = datetime.time(hour, minute)
-            case 0x63A:
-                return_value = Set.get(14)
+            case 0x628:  # Max Charge Current
+                return_value = Set.get(3)
+            # case 0x634: #Boost time start
+            #     val = Set.get(12)
+            #     if val is not None:
+            #         hour = val >> 8
+            #         minute = val & 0x00FF
+            #         if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
+            #             return_value = datetime.time(hour, minute)
+            # case 0x636:
+            #     val = Set.get(13)
+            #     if val is not None:
+            #         hour = val >> 8
+            #         minute = val & 0x00FF
+            #         if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
+            #             return_value = datetime.time(hour, minute)
+            # case 0x638: #Boost time
+            #     val = Set.get(15)
+            #     if val is not None:
+            #         hour = val >> 8
+            #         minute = val & 0x00FF
+            #         if hour >= 0 and hour < 24 and minute >= 0 and minute < 60:
+            #             return_value = datetime.time(hour, minute)
+            # case 0x63A: #Boost charge
+            #     return_value = Set.get(14)
             case 0x0:
                 return_value = Data.get(3)
             case 0x1:
@@ -188,10 +188,10 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value = Data.get(24)
             case 0x1D:
                 return_value = Data.get(0)
-            case 0x25:
-                ver = str(Set.get(19))
-                if ver is not None:
-                    return_value = f"{ver[0]}.{ver[1:]}"
+            # case 0x25: #Firmware/ Factory reset
+            #     ver = str(Set.get(19))
+            #     if ver is not None:
+            #         return_value = f"{ver[0]}.{ver[1:]}"
             # case 0x2B: #Charge time
             #     datH = Data.get(81)
             #     datL = Data.get(80)

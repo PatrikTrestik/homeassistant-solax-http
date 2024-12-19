@@ -476,7 +476,7 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
         native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         device_class=SensorDeviceClass.CURRENT,
         entity_registry_enabled_default=False,
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     # SolaXEVChargerHttpSensorEntityDescription(
     #     name = "Control Command",
