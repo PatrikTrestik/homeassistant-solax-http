@@ -1,9 +1,11 @@
-from dataclasses import dataclass
+from ctypes import cast
 import datetime
 import logging
+from dataclasses import dataclass
 
-from .entity_definitions import ALL_POW_GROUP, ALL_VER_GROUP, ALL_X_GROUP, S16
 from .plugin_base import plugin_base
+from .entity_definitions import ALL_POW_GROUP, ALL_X_GROUP, ALL_VER_GROUP, S16
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -12,7 +14,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 @dataclass
-class solax_ev_charger_plugin(plugin_base):
+class solax_ev_charger_plugin_g2(plugin_base):
     """Plugin for SolaX EV Charger integration."""
 
     serialnumber: str = None
@@ -76,18 +78,18 @@ class solax_ev_charger_plugin(plugin_base):
 
         return_value = None
         match descr.register:
-            case 0xF001:
-                # Y-M-D H:m:S
-                year = Data.get(84) >> 8
-                month = Data.get(84) & 0x00FF
-                day = Data.get(83) >> 8
-                hour = Data.get(83) & 0x00FF
-                minute = Data.get(82) >> 8
-                second = Data.get(82) & 0x00FF
-                if month != 0:
-                    return_value = datetime.datetime(
-                        2000 + year, month, day, hour, minute, second
-                    ).astimezone()
+            # case 0xF001: #Min/Sec Last charge start
+            #     # Y-M-D H:m:S
+            #     year = Data.get(84) >> 8
+            #     month = Data.get(84) & 0x00FF
+            #     day = Data.get(83) >> 8
+            #     hour = Data.get(83) & 0x00FF
+            #     minute = Data.get(82) >> 8
+            #     second = Data.get(82) & 0x00FF
+            #     if month != 0:
+            #         return_value = datetime.datetime(
+            #             2000 + year, month, day, hour, minute, second
+            #         ).astimezone()
             case 0x600:
                 return_value = Info.get(2)
             case 0x60C:
@@ -108,8 +110,8 @@ class solax_ev_charger_plugin(plugin_base):
             #     return_value=Data[]
             # case 0x61E: # RTC: Y-M-D H:m:S
             #     return_value=[Data[38]H, Data[38]L, Data[37]H, Data[37]L, Data[36]H, Data[36]L]
-            case 0x625:
-                return_value = Data.get(65)
+            # case 0x625:
+            #     return_value = Data.get(65)
             case 0x628:
                 return_value = Set.get(76)
             case 0x634:
@@ -136,65 +138,65 @@ class solax_ev_charger_plugin(plugin_base):
             case 0x63A:
                 return_value = Set.get(14)
             case 0x0:
-                return_value = Data.get(2)
-            case 0x1:
                 return_value = Data.get(3)
-            case 0x2:
+            case 0x1:
                 return_value = Data.get(4)
-            case 0x4:
+            case 0x2:
                 return_value = Data.get(5)
-            case 0x5:
+            case 0x4:
                 return_value = Data.get(6)
-            case 0x6:
+            case 0x5:
                 return_value = Data.get(7)
-            case 0x8:
+            case 0x6:
                 return_value = Data.get(8)
-            case 0x9:
+            case 0x8:
                 return_value = Data.get(9)
-            case 0xA:
+            case 0x9:
                 return_value = Data.get(10)
-            case 0xB:
+            case 0xA:
                 return_value = Data.get(11)
+            case 0xB:
+                return_value = Data.get(12)
             case 0xC:
                 return_value = Data.get(33)
             case 0xD:
                 return_value = Data.get(34)
             case 0xE:
                 return_value = Data.get(35)
-            case 0xF:
-                return_value = Data.get(12)
+            # case 0xF: #E Actual Charge
+            #     return_value = Data.get(12)
             case 0x10:
-                datH = Data.get(15)
-                datL = Data.get(14)
+                datH = Data.get(16)
+                datL = Data.get(15)
                 if datH is not None and datL is not None:
                     return_value = datH * 65536 + datL
-            case 0x12:
-                return_value = Data.get(16)
-            case 0x13:
-                return_value = Data.get(17)
-            case 0x14:
-                return_value = Data.get(18)
-            case 0x15:
-                return_value = Data.get(19)
-            case 0x16:
-                return_value = Data.get(20)
-            case 0x17:
-                return_value = Data.get(21)
-            case 0x18:
-                return_value = Data.get(22)
-            case 0x1C:
-                return_value = Data.get(24)
+            # case 0x12: #EA1
+            #     return_value = Data.get(16)
+            # case 0x13:
+            #     return_value = Data.get(17)
+            # case 0x14:
+            #     return_value = Data.get(18)
+            # case 0x15: # EP1
+            #     return_value = Data.get(19)
+            # case 0x16:
+            #     return_value = Data.get(20)
+            # case 0x17:
+            #     return_value = Data.get(21)
+            # case 0x18: #Exces power
+            #     return_value = Data.get(22)
+            # case 0x1C: #T PCB
+            #     return_value = Data.get(24)
             case 0x1D:
                 return_value = Data.get(0)
             case 0x25:
                 ver = str(Set.get(19))
                 if ver is not None:
                     return_value = f"{ver[0]}.{ver[1:]}"
-            case 0x2B:
-                datH = Data.get(81)
-                datL = Data.get(80)
-                if datH is not None and datL is not None:
-                    return_value = datH * 65536 + datL + 1
+            # case 0x2B: #Charge time
+            #     datH = Data.get(81)
+            #     datL = Data.get(80)
+            #     if datH is not None and datL is not None:
+            #         return_value = datH * 65536 + datL + 1
             case _:
                 return_value = None
 
@@ -213,23 +215,3 @@ class solax_ev_charger_plugin(plugin_base):
                 pass  # probably a WORDS instance
 
         return return_value
-
-    def matchWithMask(self, entitymask, blacklist=None):
-        if self.invertertype is None or self.invertertype == 0:
-            return False
-        # returns true if the entity needs to be created for an inverter
-        powmatch = ((self.invertertype & entitymask & ALL_POW_GROUP) != 0) or (
-            entitymask & ALL_POW_GROUP == 0
-        )
-        xmatch = ((self.invertertype & entitymask & ALL_X_GROUP) != 0) or (
-            entitymask & ALL_X_GROUP == 0
-        )
-        vermatch = ((self.invertertype & entitymask & ALL_VER_GROUP) != 0) or (
-            entitymask & ALL_VER_GROUP == 0
-        )
-        blacklisted = False
-        if blacklist:
-            for start in blacklist:
-                if self._serialnumber.startswith(start):
-                    blacklisted = True
-        return (powmatch and xmatch and vermatch) and not blacklisted
