@@ -101,11 +101,15 @@ class PluginFactory:
             # Phases
             if sn[2] == "3":
                 invertertype = invertertype | X3
+            elif sn[2] == "2":
+                invertertype = invertertype | X1
             # Power
             if sn[4] == "B":
                 invertertype = invertertype | POW11
             elif sn[4] == "M":
                 invertertype = invertertype | POW22
+            elif sn[4] == "7":
+                invertertype = invertertype | POW7
         else:
             _LOGGER.error("Unrecognized inverter type - serial number: %s", sn)
             return None
