@@ -385,7 +385,7 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
         },
         entity_registry_enabled_default=False,
         icon="mdi:dip-switch",
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
         name="Start Charge Mode",

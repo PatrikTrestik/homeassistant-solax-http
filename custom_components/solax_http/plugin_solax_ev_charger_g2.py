@@ -24,50 +24,50 @@ class solax_ev_charger_plugin_g2(plugin_base):
         """Map the payload to the corresponding register based on the address."""
 
         match address:
-            case 0x60D:
-                return [{"reg": 2, "val": f"{payload}"}]
-            case 0x60C:
-                return [{"reg": 1, "val": f"{payload}"}]
-            case 0x60E:
-                return [{"reg": 3, "val": f"{payload}"}]
-            case 0x60F:
-                return [{"reg": 4, "val": f"{payload}"}]
-            case 0x610:
-                return [{"reg": 5, "val": f"{payload}"}]
-            case 0x613:
-                return [{"reg": 11, "val": f"{payload}"}]
-            case 0x618:
-                return [{"reg": 22, "val": f"{payload}"}]
-            case 0x625:
-                return [{"reg": 70, "val": f"{payload}"}]
-            case 0x628:
-                return [{"reg": 82, "val": f"{payload}"}]
-            case 0x634:
-                if isinstance(payload, datetime.time):
-                    time_val: datetime.time = payload
-                    hour = time_val.hour
-                    minute = time_val.minute
-                    hm_payload = (hour << 8) + minute
-                    return [{"reg": 12, "val": f"{hm_payload}"}]
-                return None
-            case 0x636:
-                if isinstance(payload, datetime.time):
-                    time_val: datetime.time = payload
-                    hour = time_val.hour
-                    minute = time_val.minute
-                    hm_payload = (hour << 8) + minute
-                    return [{"reg": 13, "val": f"{hm_payload}"}]
-                return None
-            case 0x638:
-                if isinstance(payload, datetime.time):
-                    time_val: datetime.time = payload
-                    hour = time_val.hour
-                    minute = time_val.minute
-                    hm_payload = (hour << 8) + minute
-                    return [{"reg": 15, "val": f"{hm_payload}"}]
-                return None
-            case 0x63A:
-                return [{"reg": 14, "val": f"{payload}"}]
+            # case 0x60D: #Mode
+            #     return [{"reg": 2, "val": f"{payload}"}]
+            # case 0x60C:
+            #     return [{"reg": 1, "val": f"{payload}"}]
+            # case 0x60E:
+            #     return [{"reg": 3, "val": f"{payload}"}]
+            # case 0x60F:
+            #     return [{"reg": 4, "val": f"{payload}"}]
+            # case 0x610:
+            #     return [{"reg": 5, "val": f"{payload}"}]
+            # case 0x613:
+            #     return [{"reg": 11, "val": f"{payload}"}]
+            # case 0x618:
+            #     return [{"reg": 22, "val": f"{payload}"}]
+            # case 0x625:
+            #     return [{"reg": 70, "val": f"{payload}"}]
+            # case 0x628:
+            #     return [{"reg": 82, "val": f"{payload}"}]
+            # case 0x634:
+            #     if isinstance(payload, datetime.time):
+            #         time_val: datetime.time = payload
+            #         hour = time_val.hour
+            #         minute = time_val.minute
+            #         hm_payload = (hour << 8) + minute
+            #         return [{"reg": 12, "val": f"{hm_payload}"}]
+            #     return None
+            # case 0x636:
+            #     if isinstance(payload, datetime.time):
+            #         time_val: datetime.time = payload
+            #         hour = time_val.hour
+            #         minute = time_val.minute
+            #         hm_payload = (hour << 8) + minute
+            #         return [{"reg": 13, "val": f"{hm_payload}"}]
+            #     return None
+            # case 0x638:
+            #     if isinstance(payload, datetime.time):
+            #         time_val: datetime.time = payload
+            #         hour = time_val.hour
+            #         minute = time_val.minute
+            #         hm_payload = (hour << 8) + minute
+            #         return [{"reg": 15, "val": f"{hm_payload}"}]
+            #     return None
+            # case 0x63A:
+            #     return [{"reg": 14, "val": f"{payload}"}]
             case _:
                 return None
 
@@ -94,8 +94,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value = Info.get(2)
             # case 0x60C: #Grid Data Source
             #     return_value = Set.get(0)
-            # case 0x60D: #Mode
-            #     return_value = Set.get(1)
+            case 0x60D: #Mode
+                return_value = Set.get(1)
             # case 0x60E: #Eco Gear
             #     return_value = Set.get(2)
             # case 0x60F: #Green Gear
