@@ -238,7 +238,7 @@ SELECT_TYPES = [
             3: "Green",
         },
         icon="mdi:dip-switch",
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     SolaXEVChargerHttpSelectEntityDescription(
         name="Charger Green Mode Level",
@@ -835,6 +835,9 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
             8: "Suspended EVSE",
             9: "Update",
             10: "RFID Activation",
+            11: "Start Delay",
+            12: "Charging Pause",
+            13: "Stoping"
         },
         icon="mdi:run",
         allowedtypes=G1 | G2,

@@ -24,8 +24,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
         """Map the payload to the corresponding register based on the address."""
 
         match address:
-            # case 0x60D: #Mode
-            #     return [{"reg": 2, "val": f"{payload}"}]
+            case 0x60D: #Mode
+                return [{"reg": 52, "val": f"{payload}"}]
             # case 0x60C:
             #     return [{"reg": 1, "val": f"{payload}"}]
             # case 0x60E:
@@ -95,7 +95,7 @@ class solax_ev_charger_plugin_g2(plugin_base):
             # case 0x60C: #Grid Data Source
             #     return_value = Set.get(0)
             case 0x60D: #Mode
-                return_value = Set.get(1)
+                return_value = Set.get(2)
             # case 0x60E: #Eco Gear
             #     return_value = Set.get(2)
             # case 0x60F: #Green Gear
