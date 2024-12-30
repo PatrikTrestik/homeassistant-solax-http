@@ -6,7 +6,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTR_MANUFACTURER, DOMAIN, BaseHttpButtonEntityDescription
+from .const import DOMAIN, BaseHttpButtonEntityDescription
 from .coordinator import SolaxHttpUpdateCoordinator
 from .plugin_base import plugin_base
 
@@ -18,16 +18,10 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     plugin: plugin_base = coordinator.plugin
 
-    device_info = {
-        "identifiers": {(DOMAIN, name)},
-        "name": name,
-        "manufacturer": ATTR_MANUFACTURER,
-    }
-
     entities = []
     for button_info in plugin.BUTTON_TYPES:
         if plugin.matchWithMask(button_info.allowedtypes, button_info.blacklist):
-            button = SolaXHttpButton(coordinator, name, device_info, button_info)
+            button = SolaXHttpButton(coordinator, name, plugin.device_info, button_info)
 
             entities.append(button)
 

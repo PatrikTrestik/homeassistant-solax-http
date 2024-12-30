@@ -55,7 +55,7 @@ class PluginFactory:
         return None
 
     @staticmethod
-    async def _read_serial_number(host: str, pwd: str):
+    async def _read_device_info(host: str, pwd: str):
         httpData = None
         text = await PluginFactory._http_post(
             f"http://{host}", f"optType=ReadRealTimeData&pwd={pwd}"
@@ -69,7 +69,10 @@ class PluginFactory:
             httpData = json.loads(text)
         except json.decoder.JSONDecodeError:
             _LOGGER.error("Failed to decode json: %s", text)
-        return httpData["Information"][2]
+        return {
+            "sn": httpData["Information"][2],
+            "firmware": httpData["Information"][4],
+        }
 
     @staticmethod
     def _determine_type(sn: str):
@@ -118,7 +121,8 @@ class PluginFactory:
     @staticmethod
     async def get_plugin_instance(host: str, pwd: str):
         """Get an instance of plugin based on serial number/type."""
-        sn = await PluginFactory._read_serial_number(host, pwd)
+        info = await PluginFactory._read_device_info(host, pwd)
+        sn = info["sn"]
         if sn is None:
             _LOGGER.warning("Attempt to read serialnumber failed")
             return None
@@ -135,6 +139,7 @@ class PluginFactory:
                     NUMBER_TYPES=NUMBER_TYPES,
                     BUTTON_TYPES=BUTTON_TYPES,
                     SELECT_TYPES=SELECT_TYPES,
+                    sw_version=info["firmware"],
                 )
             if invertertype & V20:
                 return solax_ev_charger_plugin_g2(
@@ -146,5 +151,6 @@ class PluginFactory:
                     NUMBER_TYPES=NUMBER_TYPES,
                     BUTTON_TYPES=BUTTON_TYPES,
                     SELECT_TYPES=SELECT_TYPES,
+                    sw_version=info["firmware"],
                 )
         raise ValueError(f"Unknown inverter type: {sn}")

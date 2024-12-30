@@ -17,16 +17,10 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     plugin: plugin_base = coordinator.plugin
 
-    device_info = {
-        "identifiers": {(DOMAIN, name)},
-        "name": name,
-        "manufacturer": ATTR_MANUFACTURER,
-    }
-
     entities = []
     for number_info in plugin.NUMBER_TYPES:
         if plugin.matchWithMask(number_info.allowedtypes, number_info.blacklist):
-            select = SolaXHttpNumber(coordinator, name, device_info, number_info)
+            select = SolaXHttpNumber(coordinator, name, plugin.device_info, number_info)
 
             entities.append(select)
 
