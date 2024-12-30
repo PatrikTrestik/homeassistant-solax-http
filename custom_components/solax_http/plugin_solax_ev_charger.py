@@ -1,8 +1,10 @@
+"""Module provides the solax_ev_charger_plugin class for SolaX EV Charger integration."""
+
 from dataclasses import dataclass
 import datetime
 import logging
 
-from .entity_definitions import ALL_POW_GROUP, ALL_VER_GROUP, ALL_X_GROUP, S16
+from .entity_definitions import POW7, POW11, POW22, S16, X1, X3
 from .plugin_base import plugin_base
 
 _LOGGER = logging.getLogger(__name__)
@@ -17,6 +19,26 @@ class solax_ev_charger_plugin(plugin_base):
 
     serialnumber: str = None
     invertertype: int = None
+    hw_version: str = "G1"
+
+    @property
+    def inverter_model(self) -> str:
+        """Return the inverter model based on the inverter type."""
+        if (self.invertertype & X1) != 0:
+            phase = "X1"
+        elif (self.invertertype & X3) != 0:
+            phase = "X3"
+        else:
+            phase = ""
+        if (self.invertertype & POW7) != 0:
+            p = "7kW"
+        elif (self.invertertype & POW11) != 0:
+            p = "11kW"
+        elif (self.invertertype & POW22) != 0:
+            p = "22kW"
+        else:
+            p = ""
+        return f"{phase}-EVC-{p}"
 
     def map_payload(self, address, payload):
         """Map the payload to the corresponding register based on the address."""
@@ -213,23 +235,3 @@ class solax_ev_charger_plugin(plugin_base):
                 pass  # probably a WORDS instance
 
         return return_value
-
-    def matchWithMask(self, entitymask, blacklist=None):
-        if self.invertertype is None or self.invertertype == 0:
-            return False
-        # returns true if the entity needs to be created for an inverter
-        powmatch = ((self.invertertype & entitymask & ALL_POW_GROUP) != 0) or (
-            entitymask & ALL_POW_GROUP == 0
-        )
-        xmatch = ((self.invertertype & entitymask & ALL_X_GROUP) != 0) or (
-            entitymask & ALL_X_GROUP == 0
-        )
-        vermatch = ((self.invertertype & entitymask & ALL_VER_GROUP) != 0) or (
-            entitymask & ALL_VER_GROUP == 0
-        )
-        blacklisted = False
-        if blacklist:
-            for start in blacklist:
-                if self._serialnumber.startswith(start):
-                    blacklisted = True
-        return (powmatch and xmatch and vermatch) and not blacklisted

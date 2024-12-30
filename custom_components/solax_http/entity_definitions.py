@@ -649,7 +649,7 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
         device_class=SensorDeviceClass.DURATION,
         state_class=SensorStateClass.TOTAL,
         entity_registry_enabled_default=True,
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
         name="Charge Frequency",
@@ -695,7 +695,7 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
         name="Charge Added Total",

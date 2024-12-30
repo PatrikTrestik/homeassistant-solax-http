@@ -21,12 +21,6 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     plugin: plugin_base = coordinator.plugin
 
-    device_info = {
-        "identifiers": {(DOMAIN, name)},
-        "name": name,
-        "manufacturer": ATTR_MANUFACTURER,
-    }
-
     entities = []
 
     for sensor_description in plugin.SENSOR_TYPES:
@@ -37,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities):
             sensor = SolaXHttpSensor(
                 coordinator,
                 name,
-                device_info,
+                plugin.device_info,
                 newdescr,
             )
             entities.append(sensor)

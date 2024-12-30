@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_NAME, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 
-from .const import CONF_SN, DOMAIN
+from .const import ATTR_MANUFACTURER, CONF_SN, DOMAIN
 from .coordinator import SolaxHttpUpdateCoordinator
 from .plugin_factory import PluginFactory
 
@@ -32,6 +32,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     _LOGGER.debug("Setup %s.%s", DOMAIN, name)
 
     plugin = await PluginFactory.get_plugin_instance(config[CONF_HOST], config[CONF_SN])
+    plugin.device_info = {
+        "identifiers": {(DOMAIN, name, plugin.serialnumber)},
+        "name": name,
+        "manufacturer": ATTR_MANUFACTURER,
+        "model": plugin.inverter_model,
+        "serial_number": plugin.serialnumber,
+        "hw_version": plugin.hw_version,
+        "sw_version": plugin.sw_version,
+    }
     coordinator = SolaxHttpUpdateCoordinator(hass, entry, plugin)
     await coordinator.async_config_entry_first_refresh()
 

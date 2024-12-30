@@ -1,11 +1,10 @@
-from ctypes import cast
-import datetime
-import logging
+"""Module provides the solax_ev_charger_plugin_G2 class for SolaX EV Charger integration."""
+
 from dataclasses import dataclass
+import logging
 
+from .entity_definitions import POW7, POW11, POW22, S16, X1, X3
 from .plugin_base import plugin_base
-from .entity_definitions import ALL_POW_GROUP, ALL_X_GROUP, ALL_VER_GROUP, S16
-
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,12 +18,32 @@ class solax_ev_charger_plugin_g2(plugin_base):
 
     serialnumber: str = None
     invertertype: int = None
+    hw_version: str = "G2"
+
+    @property
+    def inverter_model(self) -> str:
+        """Return the inverter model based on the inverter type."""
+        if (self.invertertype & X1) != 0:
+            phase = "X1"
+        elif (self.invertertype & X3) != 0:
+            phase = "X3"
+        else:
+            phase = ""
+        if (self.invertertype & POW7) != 0:
+            p = "7kW"
+        elif (self.invertertype & POW11) != 0:
+            p = "11kW"
+        elif (self.invertertype & POW22) != 0:
+            p = "22kW"
+        else:
+            p = ""
+        return f"{phase}-HAC-{p}"
 
     def map_payload(self, address, payload):
         """Map the payload to the corresponding register based on the address."""
 
         match address:
-            case 0x60D: #Mode
+            case 0x60D:  # Mode
                 return [{"reg": 52, "val": f"{payload}"}]
             # case 0x60C:
             #     return [{"reg": 1, "val": f"{payload}"}]
@@ -72,6 +91,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
                 return None
 
     def map_data(self, descr, data) -> any:
+        """Map data from the given dictionary based on the descriptor's register value."""
+
         Set = data["Set"]
         Data = data["Data"]
         Info = data["Info"]
@@ -94,8 +115,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value = Info.get(2)
             # case 0x60C: #Grid Data Source
             #     return_value = Set.get(0)
-            case 0x60D: #Mode
-                return_value = Set.get(2)
+            case 0x60D:  # Mode
+                return_value = Set.get(1)
             # case 0x60E: #Eco Gear
             #     return_value = Set.get(2)
             # case 0x60F: #Green Gear
@@ -163,8 +184,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
                 return_value = Data.get(34)
             case 0xE:
                 return_value = Data.get(35)
-            # case 0xF: #E Actual Charge
-            #     return_value = Data.get(12)
+            case 0xF:  # E Actual Charge
+                return_value = Data.get(13)
             case 0x10:
                 datH = Data.get(16)
                 datL = Data.get(15)
@@ -192,11 +213,11 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     ver = str(Set.get(19))
             #     if ver is not None:
             #         return_value = f"{ver[0]}.{ver[1:]}"
-            # case 0x2B: #Charge time
-            #     datH = Data.get(81)
-            #     datL = Data.get(80)
-            #     if datH is not None and datL is not None:
-            #         return_value = datH * 65536 + datL + 1
+            case 0x2B:  # Charge time
+                datH = Data.get(50)
+                datL = Data.get(49)
+                if datH is not None and datL is not None:
+                    return_value = datH * 65536 + datL + 1
             case _:
                 return_value = None
 

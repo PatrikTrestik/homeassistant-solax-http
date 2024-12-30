@@ -17,16 +17,10 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
     coordinator: SolaxHttpUpdateCoordinator = hass.data[DOMAIN][entry.entry_id]
     plugin: plugin_base = coordinator.plugin
 
-    device_info = {
-        "identifiers": {(DOMAIN, name)},
-        "name": name,
-        "manufacturer": ATTR_MANUFACTURER,
-    }
-
     entities = []
     for time_info in plugin.TIME_TYPES:
         if plugin.matchWithMask(time_info.allowedtypes, time_info.blacklist):
-            time = SolaXHttpTime(coordinator, name, device_info, time_info)
+            time = SolaXHttpTime(coordinator, name, plugin.device_info, time_info)
 
             entities.append(time)
 
