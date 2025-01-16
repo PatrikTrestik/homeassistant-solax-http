@@ -4,11 +4,11 @@
   ],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/PatrikTrestik/",
+  "documentation": "https://github.com/PatrikTrestik/homeassistant-solax-http",
   "domain": "solax_http",
   "iot_class": "local_polling",
   "name": "SolaX HTTP API",
   "requirements": [],
   "issue_tracker": "https://github.com/PatrikTrestik/homeassistant-solax-http/issues",
-  "version": "1.3.4"
+  "version": "1.3.5"
 }
