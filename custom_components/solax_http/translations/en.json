@@ -8,6 +8,9 @@
           "host": "The IP-address of your SolaX in LAN",
           "serial_number": "EV Charger API password (default is Reg.No.)",
           "scan_interval": "The polling frequency of the Http API in seconds"
+        },
+        "data_description": {
+          "serial_number": "API allows maximum 10 characters. Change the password if you use longer."
         }
       }
     },
@@ -29,6 +32,9 @@
           "host": "The IP-address of your SolaX in LAN",
           "serial_number": "EV Charger API password (default is Reg.No.)",
           "scan_interval": "The polling frequency of the Http API in seconds"
+        },
+        "data_description": {
+          "serial_number": "API allows maximum 10 characters. Change the password if you use longer."
         }
       }
     },
