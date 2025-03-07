@@ -210,8 +210,9 @@ class solax_ev_charger_plugin_g2(plugin_base):
             case 0x1D:
                 return_value = Data.get(0)
             # case 0x25: #Firmware/ Factory reset
-            #     ver = str(Set.get(19))
+            #     ver = Set.get(19)
             #     if ver is not None:
+            #         ver=str(ver)
             #         return_value = f"{ver[0]}.{ver[1:]}"
             case 0x2B:  # Charge time
                 datH = Data.get(50)

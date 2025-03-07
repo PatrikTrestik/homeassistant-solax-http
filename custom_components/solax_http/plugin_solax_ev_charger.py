@@ -99,17 +99,21 @@ class solax_ev_charger_plugin(plugin_base):
         return_value = None
         match descr.register:
             case 0xF001:
-                # Y-M-D H:m:S
-                year = Data.get(84) >> 8
-                month = Data.get(84) & 0x00FF
-                day = Data.get(83) >> 8
-                hour = Data.get(83) & 0x00FF
-                minute = Data.get(82) >> 8
-                second = Data.get(82) & 0x00FF
-                if month != 0:
-                    return_value = datetime.datetime(
-                        2000 + year, month, day, hour, minute, second
-                    ).astimezone()
+                ym=Data.get(84)
+                dh=Data.get(83)
+                ms=Data.get(82)
+                if ym is not None and dh is not None and ms is not None:
+                    # Y-M-D H:m:S
+                    year = Data.get(84) >> 8
+                    month = Data.get(84) & 0x00FF
+                    day = Data.get(83) >> 8
+                    hour = Data.get(83) & 0x00FF
+                    minute = Data.get(82) >> 8
+                    second = Data.get(82) & 0x00FF
+                    if month != 0:
+                        return_value = datetime.datetime(
+                            2000 + year, month, day, hour, minute, second
+                        ).astimezone()
             case 0x600:
                 return_value = Info.get(2)
             case 0x60C:
@@ -209,8 +213,9 @@ class solax_ev_charger_plugin(plugin_base):
             case 0x1D:
                 return_value = Data.get(0)
             case 0x25:
-                ver = str(Set.get(19))
+                ver = Set.get(19)
                 if ver is not None:
+                    ver=str(ver)
                     return_value = f"{ver[0]}.{ver[1:]}"
             case 0x2B:
                 datH = Data.get(81)
