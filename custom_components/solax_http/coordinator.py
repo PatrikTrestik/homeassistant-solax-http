@@ -27,7 +27,11 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
     config_entry: ConfigEntry
 
     def __init__(
-        self, hass: HomeAssistant, config: ConfigEntry, plugin: plugin_base
+        self,
+        hass: HomeAssistant,
+        config: ConfigEntry,
+        plugin: plugin_base,
+        session: aiohttp.ClientSession
     ) -> None:
         """Initialize Solax Http API data updater."""
 
@@ -35,6 +39,7 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
         self._host = config.options.get(CONF_HOST, None)
         self._sn = config.options.get(CONF_SN, None)
         self.plugin = plugin
+        self.session = session
 
         scan_interval = config.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
@@ -77,7 +82,6 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
         # Grab active context variables to limit data required to be fetched from API
         # Note: using context is not required if there is no need or ability to limit
         # data retrieved from API.
-        contexts = self.async_contexts()
         try:
             realtimeData = await self._read_realtime_data()
             setData = await self._read_set_data()
@@ -133,36 +137,38 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
             f"http://{self._host}", f"optType=ReadSetData&pwd={self._sn}"
         )
         if text is None:
+            _LOGGER.warning("Received empty Set data from http")
             return None
         if "failed" in text:
-            _LOGGER.error("Failed to read data from http: %s", text)
+            _LOGGER.error("Failed to read Set data from http: %s", text)
             return None
         try:
             setData = json.loads(text)
         except json.decoder.JSONDecodeError:
-            _LOGGER.error("Failed to decode json: %s", text)
+            _LOGGER.error("Failed to decode Set json: %s", text)
         return setData
 
     async def _http_post(self, url, payload, retry=3):
         try:
-            connector = aiohttp.TCPConnector(
-                force_close=True,
-            )
-            async with (
-                aiohttp.ClientSession(connector=connector) as session,
-                session.post(url, data=payload) as resp,
-            ):
+            async with self.session.post(url, data=payload) as resp:
                 if resp.status == 200:
                     return await resp.text()
         except TimeoutError:
             if retry > 0:
                 return await self._http_post(url, payload, retry - 1)
+            _LOGGER.error("Timeout error reading from Http. Url: %s", url)
         except aiohttp.ServerDisconnectedError:
             if retry:
                 return await self._http_post(url, payload, retry - 1)
+            _LOGGER.error("Server disconnected error reading from Http. Url: %s", url)
         except aiohttp.client_exceptions.ClientOSError:
             if retry > 0:
                 return await self._http_post(url, payload, retry - 1)
+            _LOGGER.error("ClientOSError reading from Http. Url: %s", url)
+        except aiohttp.ClientError as err:
+            if retry:
+                return await self._http_post(url, payload, retry - 1)
+            _LOGGER.error("ClientError reading from Http. Url: %s", url)
         except Exception as ex:
             _LOGGER.exception("Error reading from Http. Url: %s", url, exc_info=ex)
         return None

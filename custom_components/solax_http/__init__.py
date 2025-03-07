@@ -3,8 +3,9 @@
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_SCAN_INTERVAL
+from homeassistant.const import CONF_HOST, CONF_NAME
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import ATTR_MANUFACTURER, CONF_SN, DOMAIN
 from .coordinator import SolaxHttpUpdateCoordinator
@@ -41,7 +42,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         "hw_version": plugin.hw_version,
         "sw_version": plugin.sw_version,
     }
-    coordinator = SolaxHttpUpdateCoordinator(hass, entry, plugin)
+    # Get the HA-managed aiohttp session
+    session = async_get_clientsession(hass)
+
+    coordinator = SolaxHttpUpdateCoordinator(hass, entry, plugin, session=session)
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})
