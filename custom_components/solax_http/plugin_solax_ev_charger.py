@@ -60,7 +60,7 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg": 22, "val": f"{payload}"}]
             case 0x625:
                 return [{"reg": 70, "val": f"{payload}"}]
-            case 0x628:
+            case 0x668:
                 return [{"reg": 82, "val": f"{payload}"}]
             case 0x634:
                 if isinstance(payload, datetime.time):
@@ -136,7 +136,7 @@ class solax_ev_charger_plugin(plugin_base):
             #     return_value=[Data[38]H, Data[38]L, Data[37]H, Data[37]L, Data[36]H, Data[36]L]
             case 0x625:
                 return_value = Data.get(65)
-            case 0x628:
+            case 0x668:
                 return_value = Set.get(76)
             case 0x634:
                 val = Set.get(12)
