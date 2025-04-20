@@ -1,5 +1,6 @@
 """Module provides the base plugin class for Solax HTTP integration."""
 
+from contextlib import suppress
 from dataclasses import dataclass
 import logging
 
@@ -43,6 +44,34 @@ class plugin_base:
 
     def map_payload(self, address, payload):
         return None
+
+    def _reverse_scale(self, descr, scaled_value):
+        """Reverse the scaling process to retrieve the original value."""
+
+        if isinstance(descr.scale, dict):  # translate string back to int
+            original_value = next(
+                (key for key, val in descr.scale.items() if val == scaled_value), None
+            )
+        elif callable(descr.scale):  # reverse function call ???
+            original_value = scaled_value
+        elif isinstance(descr.scale, (int, float)):  # check if scale is a number
+            with suppress(Exception):
+                original_value = round(scaled_value / descr.scale)
+        else:
+            original_value = scaled_value
+        return original_value
+
+    def _apply_scale(self, descr, value):
+        """Apply scale to the value based on the description."""
+        return_value = value
+        if isinstance(descr.scale, dict):  # translate int to string
+            return_value = descr.scale.get(value, "Unknown")
+        elif callable(descr.scale):  # function to call ?
+            return_value = descr.scale(value, descr)
+        elif isinstance(descr.scale, (int, float)): # apply simple numeric scaling and rounding if not a list of words
+            with suppress(Exception):
+                return_value = round(value * descr.scale, descr.rounding)
+        return return_value
 
     def matchWithMask(self, entitymask, blacklist=None):
         if self.invertertype is None or self.invertertype == 0:

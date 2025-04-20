@@ -75,16 +75,6 @@ class SolaXHttpSelect(CoordinatorEntity, SelectEntity):
     def unique_id(self) -> Optional[str]:
         return f"{self._platform_name}_{self.entity_description.key}"
 
-    def get_payload(self, my_dict, search):
-        for k, v in my_dict.items():
-            if v == search:
-                return k
-        return None
-
     async def async_select_option(self, option: str) -> None:
         """Change the select option."""
-        payload = self.get_payload(self.entity_description.scale, option)
-        success = await self.coordinator.write_register(
-            self.entity_description.register, payload
-        )
-        await self.coordinator.async_request_refresh()
+        await self.coordinator.write_register(self.entity_description, option)

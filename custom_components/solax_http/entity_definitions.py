@@ -249,7 +249,7 @@ SELECT_TYPES = [
             6: "6A",
         },
         icon="mdi:dip-switch",
-        allowedtypes=G1,
+        allowedtypes=G1 | G2,
     ),
     SolaXEVChargerHttpSelectEntityDescription(
         name="Charger Eco Mode Level",
@@ -263,7 +263,7 @@ SELECT_TYPES = [
             25: "25A",
         },
         icon="mdi:dip-switch",
-        allowedtypes=POW7 | POW22 | G1,
+        allowedtypes=POW7 | POW22 | G1 | G2,
     ),
     SolaXEVChargerHttpSelectEntityDescription(
         name="Charger Eco Mode Level",
@@ -271,7 +271,7 @@ SELECT_TYPES = [
         register=0x60E,
         scale={6: "6A", 10: "10A"},
         icon="mdi:dip-switch",
-        allowedtypes=POW11 | G1,
+        allowedtypes=POW11 | G1 | G2,
     ),
     SolaXEVChargerHttpSelectEntityDescription(
         name="Start Charge Mode",

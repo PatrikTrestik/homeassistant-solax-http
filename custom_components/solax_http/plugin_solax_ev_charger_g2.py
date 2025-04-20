@@ -39,18 +39,21 @@ class solax_ev_charger_plugin_g2(plugin_base):
             p = ""
         return f"{phase}-HAC-{p}"
 
-    def map_payload(self, address, payload):
+    def map_payload(self, descr, value):
         """Map the payload to the corresponding register based on the address."""
+
+        address = descr.register
+        payload = self._reverse_scale(descr, value)
 
         match address:
             case 0x60D:  # Mode
                 return [{"reg": 52, "val": f"{payload}"}]
             # case 0x60C:
             #     return [{"reg": 1, "val": f"{payload}"}]
-            # case 0x60E:
-            #     return [{"reg": 3, "val": f"{payload}"}]
-            # case 0x60F:
-            #     return [{"reg": 4, "val": f"{payload}"}]
+            case 0x60E: # Eco Gear
+                return [{"reg": 62, "val": f"{payload}"}]
+            case 0x60F: # Green Gear
+                return [{"reg": 63, "val": f"{payload}"}]
             # case 0x610:
             #     return [{"reg": 5, "val": f"{payload}"}]
             # case 0x613:
@@ -59,8 +62,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return [{"reg": 22, "val": f"{payload}"}]
             # case 0x625:
             #     return [{"reg": 70, "val": f"{payload}"}]
-            case 0x668:
-                return [{"reg": 82, "val": f"{payload}"}]
+            case 0x668: #Max Charge Current
+                return [{"reg": 54, "val": f"{payload}"}]
             # case 0x634:
             #     if isinstance(payload, datetime.time):
             #         time_val: datetime.time = payload
@@ -117,10 +120,10 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value = Set.get(0)
             case 0x60D:  # Mode
                 return_value = Set.get(1)
-            # case 0x60E: #Eco Gear
-            #     return_value = Set.get(2)
-            # case 0x60F: #Green Gear
-            #     return_value = Set.get(3)
+            case 0x60E: #Eco Gear
+                 return_value = Set.get(11)
+            case 0x60F: #Green Gear
+                 return_value = Set.get(12)
             # case 0x610: #StartChargeMode
             #     return_value = Set.get(4)
             # case 0x613: #Smart boost Type
@@ -226,14 +229,5 @@ class solax_ev_charger_plugin_g2(plugin_base):
             return None
         if descr.unit == S16 and return_value >= 32768:
             return_value = return_value - 65536
-        if isinstance(descr.scale, dict):  # translate int to string
-            return_value = descr.scale.get(return_value, "Unknown")
-        elif callable(descr.scale):  # function to call ?
-            return_value = descr.scale(return_value, descr)
-        else:  # apply simple numeric scaling and rounding if not a list of words
-            try:
-                return_value = round(return_value * descr.scale, descr.rounding)
-            except:
-                pass  # probably a WORDS instance
 
-        return return_value
+        return self._apply_scale(descr, return_value)
