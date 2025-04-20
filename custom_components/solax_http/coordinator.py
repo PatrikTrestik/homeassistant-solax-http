@@ -1,11 +1,16 @@
+"""SolaX HTTP API Data Update Coordinator.
+
+This module provides the SolaxHttpUpdateCoordinator class for managing
+data updates from the SolaX HTTP API.
+"""
+
 import asyncio
 from datetime import timedelta
 import json
 import logging
+
 import aiohttp
 
-import async_timeout
-from .plugin_base import plugin_base
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
@@ -13,17 +18,25 @@ from homeassistant.helpers.debounce import Debouncer
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
+    API_TIMEOUT,
     CONF_SN,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     REQUEST_REFRESH_DELAY,
-    API_TIMEOUT,
 )
+from .plugin_base import plugin_base
 
 _LOGGER = logging.getLogger(__name__)
 
 
 class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
+    """Coordinator for managing data updates from the SolaX HTTP API.
+
+    This class handles fetching data from the SolaX HTTP API, processing
+    the data, and providing it to Home Assistant. It also manages retries
+    and error handling for API requests.
+    """
+
     config_entry: ConfigEntry
 
     def __init__(
@@ -62,7 +75,7 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
         try:
             # This timeout is only a safeguard against the API methods locking
             # up. The API methods themselves have their own timeouts.
-            async with async_timeout.timeout(10 * API_TIMEOUT):
+            async with asyncio.timeout(10 * API_TIMEOUT):
                 # Fetch updates
                 data = await self.__async_get_data()
                 if self.plugin.invertertype is None:
@@ -70,12 +83,11 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
                 return data
 
         except SolaXApiError as err:
-            _LOGGER.exception(
-                "Fetching data failed: %s: %s", type(err).__qualname__, err
-            )
+            _LOGGER.exception("Fetching data failed")
             raise UpdateFailed(err) from err
 
     def get_data(self, descr):
+        """Retrieve mapped data for the given description."""
         return self.plugin.map_data(descr, self.data)
 
     async def __async_get_data(self) -> dict:
@@ -92,12 +104,11 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
         except Exception:
             _LOGGER.exception("Something went wrong reading from Http API")
 
-        data = {
+        return {
             "Set": dict(enumerate(setData)),
             "Data": dict(enumerate(realtimeData["Data"])),
             "Info": dict(enumerate(realtimeData["Information"])),
         }
-        return data
 
     async def _read_realtime_data(self):
         httpData = None
@@ -115,21 +126,29 @@ class SolaxHttpUpdateCoordinator(DataUpdateCoordinator[None]):
             _LOGGER.error("Failed to decode json: %s", text)
         return httpData
 
-    async def write_register(self, address, payload):
+    async def write_register(self, entity_description, value, always=False) -> None:
         """Write register through http."""
 
-        descr = self.plugin.map_payload(address, payload)
-        if descr is None:
-            return False
+        payload = self.plugin.map_payload(entity_description, value)
+        if payload is None:
+            return
+
+        if not always:
+            self.data = await self.__async_get_data()
+            current_value = self.get_data(entity_description)
+            if current_value == value:
+                return
 
         resp = await self._http_post(
             f"http://{self._host}",
-            f'optType=setReg&pwd={self._sn}&data={{"num":1,"Data":{json.dumps(descr)}}}',
+            f'optType=setReg&pwd={self._sn}&data={{"num":1,"Data":{json.dumps(payload)}}}',
         )
         if resp is not None:
-            _LOGGER.info("Received HTTP API response %s", resp)
-            return True
-        return False
+            _LOGGER.debug("Received HTTP API response %s", resp)
+
+        if not always:
+            data = await self.__async_get_data()
+            self.async_set_updated_data(data)
 
     async def _read_set_data(self):
         setData = None

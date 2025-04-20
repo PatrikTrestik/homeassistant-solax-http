@@ -31,6 +31,8 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
 class SolaXHttpTime(CoordinatorEntity, TimeEntity):
     """Representation of an SolaX Http time."""
 
+    coordinator: SolaxHttpUpdateCoordinator
+
     def __init__(
         self,
         coordinator: SolaxHttpUpdateCoordinator,
@@ -74,8 +76,6 @@ class SolaXHttpTime(CoordinatorEntity, TimeEntity):
 
     async def async_set_value(self, value: datetime.time) -> None:
         """Change the time value."""
-        payload = value
-        success = await self.coordinator.write_register(
-            self.entity_description.register, payload
+        await self.coordinator.write_register(
+            self.entity_description, value
         )
-        await self.coordinator.async_request_refresh()

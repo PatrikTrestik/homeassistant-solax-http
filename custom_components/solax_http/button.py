@@ -71,7 +71,6 @@ class SolaXHttpButton(CoordinatorEntity, ButtonEntity):
 
     async def async_press(self) -> None:
         """Write the button value."""
-        success = await self.coordinator.write_register(
-            self.entity_description.register, 1
+        await self.coordinator.write_register(
+            self.entity_description, 1, always=True
         )
-        # await self.coordinator.async_request_refresh()

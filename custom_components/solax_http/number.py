@@ -31,6 +31,8 @@ async def async_setup_entry(hass: HomeAssistant, entry, async_add_entities) -> N
 class SolaXHttpNumber(CoordinatorEntity, NumberEntity):
     """Representation of an SolaX Http number."""
 
+    coordinator: SolaxHttpUpdateCoordinator
+
     def __init__(
         self,
         coordinator: SolaxHttpUpdateCoordinator,
@@ -74,8 +76,6 @@ class SolaXHttpNumber(CoordinatorEntity, NumberEntity):
 
     async def async_set_native_value(self, value: float) -> None:
         """Change the number value."""
-        payload = value
-        success = await self.coordinator.write_register(
-            self.entity_description.register, payload
+        await self.coordinator.write_register(
+            self.entity_description, value
         )
-        await self.coordinator.async_request_refresh()

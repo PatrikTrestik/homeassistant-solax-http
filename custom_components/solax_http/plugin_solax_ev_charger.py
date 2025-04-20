@@ -40,9 +40,11 @@ class solax_ev_charger_plugin(plugin_base):
             p = ""
         return f"{phase}-EVC-{p}"
 
-    def map_payload(self, address, payload):
+    def map_payload(self, descr, value):
         """Map the payload to the corresponding register based on the address."""
 
+        address = descr.register
+        payload = self._reverse_scale(descr, value)
         match address:
             case 0x60D:
                 return [{"reg": 2, "val": f"{payload}"}]
@@ -229,14 +231,6 @@ class solax_ev_charger_plugin(plugin_base):
             return None
         if descr.unit == S16 and return_value >= 32768:
             return_value = return_value - 65536
-        if isinstance(descr.scale, dict):  # translate int to string
-            return_value = descr.scale.get(return_value, "Unknown")
-        elif callable(descr.scale):  # function to call ?
-            return_value = descr.scale(return_value, descr)
-        else:  # apply simple numeric scaling and rounding if not a list of words
-            try:
-                return_value = round(return_value * descr.scale, descr.rounding)
-            except:
-                pass  # probably a WORDS instance
 
-        return return_value
+        return self._apply_scale(descr, return_value)
+
