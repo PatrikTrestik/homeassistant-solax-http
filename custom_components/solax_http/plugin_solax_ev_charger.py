@@ -214,6 +214,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value = Data.get(24)
             case 0x1D:
                 return_value = Data.get(26)
+            case 0x106:
+                return_value = Data.get(0)
             case 0x25:
                 ver = Set.get(19)
                 if ver is not None:
