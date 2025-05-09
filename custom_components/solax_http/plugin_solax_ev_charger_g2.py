@@ -64,6 +64,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return [{"reg": 70, "val": f"{payload}"}]
             case 0x668: #Max Charge Current
                 return [{"reg": 54, "val": f"{payload}"}]
+            case 0x669: # Charging Mode
+                return [{"reg": 132, "val": f"{payload}"}]
             # case 0x634:
             #     if isinstance(payload, datetime.time):
             #         time_val: datetime.time = payload
@@ -138,6 +140,8 @@ class solax_ev_charger_plugin_g2(plugin_base):
             #     return_value = Data.get(65)
             case 0x668:  # Max Charge Current
                 return_value = Set.get(3)
+            case 0x669: # Charging Mode
+                return_value = Set.get(81)
             # case 0x634: #Boost time start
             #     val = Set.get(12)
             #     if val is not None:

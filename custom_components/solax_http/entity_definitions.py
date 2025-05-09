@@ -296,6 +296,18 @@ SELECT_TYPES = [
         icon="mdi:dip-switch",
         allowedtypes=G1,
     ),
+    SolaXEVChargerHttpSelectEntityDescription(
+        name="Charging Mode",
+        key="charging_mode",
+        register=0x669,
+        scale={
+            0: "Fast",
+            1: "Eco",
+            2: "Green",
+        },
+        icon="mdi:dip-switch",
+        allowedtypes=G1 | G2,
+    ),
     # SolaXEVChargerHttpSelectEntityDescription(
     #     name = "Device Lock",
     #     key = "device_lock",
