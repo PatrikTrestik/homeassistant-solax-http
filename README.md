@@ -3,7 +3,7 @@
 This is Home Assistant integration for SolaX local API.
 Work is based on https://github.com/wills106/homeassistant-solax-modbus and all credits for initial conception work go there.
 
-There are some Modbus registers which I skipped because I think it is not interesting. If you see something useful in EVC Modbus document what is not here, let me know.
+There are some Modbus registers which I skipped because I think it is not interesting. If you see something useful in EVC Modbus document and it is not implemented, let me know.
 HTTP API is not 1:1 to Modbus but there is high chance that I can add required sensor.
 
 This has to be taken as only other mean of communication where Modbus is not possible.
@@ -15,7 +15,10 @@ All other stuff is common and should be discussed in https://github.com/wills106
 ## G1 SolaX EV Charger X3 is supported.
 
 ## G2 SolaX Smart EV Charger HEC is supported.
+### Looking for help with testing
 I have no physycal device to test on.
+If you have HEC device and you want to help, it will be great. No coding skils required. All you need is run curl or insomnia. 
+
 If you are missing some sensor on G2 HAC, please raise issue here. It is easy to add sensors, but I need someone to test it. I will not blindly add sensors without test.
 
 ## Other devices

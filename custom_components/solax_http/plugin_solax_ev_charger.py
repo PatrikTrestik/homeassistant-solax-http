@@ -64,6 +64,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return [{"reg": 70, "val": f"{payload}"}]
             case 0x668:
                 return [{"reg": 82, "val": f"{payload}"}]
+            case 0x669: # Charging Mode
+                return [{"reg": 103, "val": f"{payload}"}]
             case 0x634:
                 if isinstance(payload, datetime.time):
                     time_val: datetime.time = payload
@@ -163,6 +165,8 @@ class solax_ev_charger_plugin(plugin_base):
                         return_value = datetime.time(hour, minute)
             case 0x63A:
                 return_value = Set.get(14)
+            case 0x669: # Charging Mode
+                return_value = Set.get(96)
             case 0x0:
                 return_value = Data.get(2)
             case 0x1:
@@ -214,6 +218,8 @@ class solax_ev_charger_plugin(plugin_base):
                 return_value = Data.get(24)
             case 0x1D:
                 return_value = Data.get(26)
+            case 0x106:
+                return_value = Data.get(0)
             case 0x25:
                 ver = Set.get(19)
                 if ver is not None:

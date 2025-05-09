@@ -296,6 +296,18 @@ SELECT_TYPES = [
         icon="mdi:dip-switch",
         allowedtypes=G1,
     ),
+    SolaXEVChargerHttpSelectEntityDescription(
+        name="Charging Mode",
+        key="charging_mode",
+        register=0x669,
+        scale={
+            0: "Fast",
+            1: "Eco",
+            2: "Green",
+        },
+        icon="mdi:dip-switch",
+        allowedtypes=G1 | G2,
+    ),
     # SolaXEVChargerHttpSelectEntityDescription(
     #     name = "Device Lock",
     #     key = "device_lock",
@@ -841,6 +853,28 @@ SENSOR_TYPES: list[SolaXEVChargerHttpSensorEntityDescription] = [
         },
         icon="mdi:run",
         allowedtypes=G1 | G2,
+    ),
+    SolaXEVChargerHttpSensorEntityDescription(
+        name="Charging status", # This is "old" status register. Adding for compatibility, because it works differently than 0x1D.
+        key="charging_status",
+        unit=U16,
+        register=0x106,
+        scale={
+            0: "Available",
+            1: "Preparing",
+            2: "Charging",
+            3: "Finishing",
+            4: "Fault Mode",
+            5: "Unavailable",
+            6: "Reserved",
+            7: "Suspended EV",
+            8: "Suspended EVSE",
+            9: "Update",
+            10: "RFID Activation"
+        },
+        icon="mdi:run",
+        allowedtypes=G1,
+        entity_registry_enabled_default=False,
     ),
     SolaXEVChargerHttpSensorEntityDescription(
         name="Firmware Version",
