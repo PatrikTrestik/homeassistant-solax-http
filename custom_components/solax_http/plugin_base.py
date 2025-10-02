@@ -47,7 +47,7 @@ class plugin_base:
 
     def _reverse_scale(self, descr, scaled_value):
         """Reverse the scaling process to retrieve the original value."""
-
+        original_value = scaled_value
         if isinstance(descr.scale, dict):  # translate string back to int
             original_value = next(
                 (key for key, val in descr.scale.items() if val == scaled_value), None
@@ -57,8 +57,6 @@ class plugin_base:
         elif isinstance(descr.scale, (int, float)):  # check if scale is a number
             with suppress(Exception):
                 original_value = round(scaled_value / descr.scale)
-        else:
-            original_value = scaled_value
         return original_value
 
     def _apply_scale(self, descr, value):
