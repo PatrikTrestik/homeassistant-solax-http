@@ -47,6 +47,9 @@ class plugin_base:
 
     def _reverse_scale(self, descr, scaled_value):
         """Reverse the scaling process to retrieve the original value."""
+        if descr.scale is None:
+            return scaled_value
+
         original_value = scaled_value
         if isinstance(descr.scale, dict):  # translate string back to int
             original_value = next(

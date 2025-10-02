@@ -128,14 +128,23 @@ TIME_TYPES = [
     SolaXEVChargerHttpTimeEntityDescription(
         name="Timed boost start",
         key="timed_boost_start",
+        scale=None,
         register=0x634,
         allowedtypes=G1,
     ),
     SolaXEVChargerHttpTimeEntityDescription(
-        name="Timed boost end", key="timed_boost_end", register=0x636, allowedtypes=G1
+        name="Timed boost end",
+        key="timed_boost_end",
+        scale=None,
+        register=0x636,
+        allowedtypes=G1
     ),
     SolaXEVChargerHttpTimeEntityDescription(
-        name="Smart boost end", key="smart_boost_end", register=0x638, allowedtypes=G1
+        name="Smart boost end",
+        key="smart_boost_end",
+        scale=None,
+        register=0x638,
+        allowedtypes=G1
     ),
 ]
 
