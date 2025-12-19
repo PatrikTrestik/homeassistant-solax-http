@@ -78,7 +78,7 @@ class PluginFactory:
     def _determine_type(sn: str):
         _LOGGER.info("Trying to determine inverter type")
         invertertype = 0
-        # derive invertertupe from seriiesnumber
+        # derive invertertype from serial number
         # Adding support for G2 HEC
         if sn.startswith("C"):  # G1 EVC
             # Version
@@ -102,7 +102,7 @@ class PluginFactory:
             # Version
             invertertype = V20
             # Phases
-            if sn[2] == "3":
+            if sn[2] == "3" or sn[2] == "7":
                 invertertype = invertertype | X3
             elif sn[2] == "2":
                 invertertype = invertertype | X1
