@@ -48,6 +48,7 @@ class BaseHttpButtonEntityDescription(ButtonEntityDescription):
     allowedtypes: int = 0  # overload with ALLDEFAULT from plugin
     register: int = None
     command: int = None
+    scale: int = 1
     blacklist: list = None  # none or list of serial number prefixes
     value_function: callable = None  #  value = function(initval, descr, datadict)
 

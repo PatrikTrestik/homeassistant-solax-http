@@ -95,7 +95,12 @@ class SolaXEVChargerHttpSensorEntityDescription(BaseHttpSensorEntityDescription)
 
 BUTTON_TYPES = [
     SolaXEVChargerHttpButtonEntityDescription(
-        name="Reset", key="reset", register=0x618, icon="mdi:reset", allowedtypes=G1
+        name="Reset",
+        key="reset",
+        register=0x618,
+        scale=1,
+        icon="mdi:reset",
+        allowedtypes=G1
     )
     # SolaXEVChargerHttpButtonEntityDescription(
     #     name = "Sync RTC",
