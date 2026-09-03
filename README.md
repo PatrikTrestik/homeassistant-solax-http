@@ -21,6 +21,11 @@ If you have HEC device and you want to help, it will be great. No coding skils r
 
 If you are missing some sensor on G2 HAC, please raise issue here. It is easy to add sensors, but I need someone to test it. I will not blindly add sensors without test.
 
+### Firmware compatibility
+The local HTTP API is not present on all G2/HAC firmware versions. On some devices it responds to `optType=ReadRealTimeData` with `Request method for this URI is not handled by server`, while the web UI (`GET /`) still works normally. Confirmed on X3-HAC-11kW, ARM 011.04 / Module 012.04 (and other versions, see #89, #98, #105).
+
+On these firmwares, check whether Modbus TCP (port 502) is open on your device instead. If it is, [homeassistant-solax-modbus](https://github.com/wills106/homeassistant-solax-modbus) supports this hardware over Modbus.
+
 ## Other devices
 Let me know if you have other device and you are interested in integrating it. Physical device is required as there is no documentation available.
 
