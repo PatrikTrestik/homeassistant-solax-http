@@ -71,7 +71,7 @@ class PluginFactory:
             _LOGGER.error("Failed to decode json: %s", text)
         return {
             "sn": httpData["Information"][2],
-            "firmware": httpData["Information"][4],
+            "firmware": str(httpData["Information"][4]),
         }
 
     @staticmethod
